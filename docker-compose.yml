@@ -1,0 +1,56 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: airops_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: airops_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://airops_user:airops_secure_pass@db:5432/airops_db
+      - ENVIRONMENT=development
+      - APP_NAME="AI-Powered Dynamic Air Operations & Resource Optimisation Simulator"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: airops_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=airops_user
+      - POSTGRES_PASSWORD=airops_secure_pass
+      - POSTGRES_DB=airops_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airops_user -d airops_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
