@@ -384,4 +384,72 @@ export const api = {
     const data: ApiSimulationEvent = await res.json();
     return mapApiEventToUi(data);
   },
+
+  // Weather Monitoring API
+  async getWeatherOverview(): Promise<import('../types').WeatherOverview> {
+    const res = await fetch(`${API_BASE_URL}/weather/overview`);
+    if (!res.ok) throw new Error(`Failed to fetch weather overview: ${res.statusText}`);
+    return res.json();
+  },
+
+  async getWeatherZones(): Promise<import('../types').WeatherZone[]> {
+    const res = await fetch(`${API_BASE_URL}/weather/zones`);
+    if (!res.ok) throw new Error(`Failed to fetch weather zones: ${res.statusText}`);
+    return res.json();
+  },
+
+  async getWeatherConditions(): Promise<import('../types').WeatherConditionCard[]> {
+    const res = await fetch(`${API_BASE_URL}/weather/conditions`);
+    if (!res.ok) throw new Error(`Failed to fetch conditions: ${res.statusText}`);
+    return res.json();
+  },
+
+  async getWeatherAlerts(): Promise<import('../types').WeatherAlert[]> {
+    const res = await fetch(`${API_BASE_URL}/weather/alerts`);
+    if (!res.ok) throw new Error(`Failed to fetch weather alerts: ${res.statusText}`);
+    return res.json();
+  },
+
+  async applyWeatherScenario(scenarioId: string): Promise<import('../types').WeatherOverview> {
+    const res = await fetch(`${API_BASE_URL}/weather/scenarios/${scenarioId}/apply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Failed to apply scenario: ${res.statusText}`);
+    return res.json();
+  },
+
+  async resetWeather(): Promise<import('../types').WeatherOverview> {
+    const res = await fetch(`${API_BASE_URL}/weather/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Failed to reset weather: ${res.statusText}`);
+    return res.json();
+  },
+
+  // Google OR-Tools CP-SAT Optimization API
+  async solveOptimization(options?: {
+    consider_weather?: boolean;
+    apply_to_database?: boolean;
+    max_solve_time_seconds?: number;
+  }): Promise<import('../types').OptimizationResult> {
+    const res = await fetch(`${API_BASE_URL}/optimization/solve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        consider_weather: options?.consider_weather ?? true,
+        apply_to_database: options?.apply_to_database ?? false,
+        max_solve_time_seconds: options?.max_solve_time_seconds ?? 5.0,
+      }),
+    });
+    if (!res.ok) throw new Error(`Optimization solver failed: ${res.statusText}`);
+    return res.json();
+  },
+
+  async getLatestOptimization(): Promise<import('../types').OptimizationResult> {
+    const res = await fetch(`${API_BASE_URL}/optimization/latest`);
+    if (!res.ok) throw new Error(`Failed to fetch latest optimization: ${res.statusText}`);
+    return res.json();
+  },
 };

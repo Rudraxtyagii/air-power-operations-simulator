@@ -5,24 +5,24 @@ export const Reports: React.FC = () => {
   const reports = [
     {
       id: 'REP-001',
-      title: 'Daily Sortie Optimization Audit',
-      date: 'Today, 08:00',
+      title: 'Daily Sortie Optimization Audit (Google OR-Tools CP-SAT)',
+      date: 'Today, 14:30 UTC',
       type: 'PDF Summary',
       size: '2.4 MB',
       status: 'Ready',
     },
     {
       id: 'REP-002',
-      title: 'Disruption Scenario Resiliency Benchmark',
-      date: 'Yesterday, 18:30',
+      title: 'Weather Hazard Dynamic Resiliency Benchmark (Zones B & F)',
+      date: 'Today, 12:00 UTC',
       type: 'CSV Dataset',
       size: '14.8 MB',
       status: 'Ready',
     },
     {
       id: 'REP-003',
-      title: 'Fleet Maintenance Turnaround Predictions (Scikit-Learn)',
-      date: '04 Oct 2026',
+      title: 'Fleet Depot Turnaround & Resource Allocation Proof',
+      date: '12 Oct 2026',
       type: 'Executive Report',
       size: '4.1 MB',
       status: 'Ready',
@@ -30,10 +30,15 @@ export const Reports: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="pb-2 border-b border-slate-800">
-        <h2 className="text-xl font-bold text-white tracking-tight">Mission & Audit Reports</h2>
-        <p className="text-xs text-slate-400">
+    <div className="p-6 space-y-6 bg-[#EAF2FC] min-h-screen text-[#14264A]">
+      <div className="pb-2 border-b border-[#C2D5ED]/60">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-2xl font-extrabold text-[#14264A] tracking-tight">Mission & Audit Reports</h2>
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#4285F4] border border-blue-200">
+            AUDIT TRAIL
+          </span>
+        </div>
+        <p className="text-xs text-[#607391] font-medium">
           Generated executive logs, mathematical solver proofs, and synthetic flight data
         </p>
       </div>
@@ -42,15 +47,15 @@ export const Reports: React.FC = () => {
         {reports.map((rep) => (
           <div
             key={rep.id}
-            className="p-4 rounded-xl bg-[#090e1a] border border-slate-800 flex items-center justify-between text-xs"
+            className="clay-card p-4.5 flex items-center justify-between text-xs hover:shadow-md transition"
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-400">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-blue-100 text-[#4285F4] flex items-center justify-center shadow-inner">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <div className="font-bold text-white">{rep.title}</div>
-                <div className="text-[11px] text-slate-400 font-mono">
+                <div className="font-extrabold text-sm text-[#14264A]">{rep.title}</div>
+                <div className="text-[11px] text-[#607391] font-mono font-medium">
                   {rep.id} • {rep.type} • {rep.size} • {rep.date}
                 </div>
               </div>
@@ -58,7 +63,7 @@ export const Reports: React.FC = () => {
 
             <button
               onClick={() => alert(`Downloading ${rep.title}`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition font-medium"
+              className="clay-btn flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#4285F4] hover:text-blue-700 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               Download

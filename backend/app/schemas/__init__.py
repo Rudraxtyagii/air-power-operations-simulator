@@ -6,6 +6,18 @@ from app.schemas.simulation_event import (
     SimulationEventCreate,
     SimulationEventResponse,
 )
+from app.schemas.weather import (
+    WeatherZoneBase,
+    WeatherZoneCreate,
+    WeatherZoneResponse,
+    WeatherAlertBase,
+    WeatherAlertCreate,
+    WeatherAlertResponse,
+    WeatherConditionCard,
+    WeatherImpactSummary,
+    WeatherScenarioResponse,
+    WeatherOverviewResponse,
+)
 
 __all__ = [
     "MissionBase",
@@ -22,4 +34,14 @@ __all__ = [
     "SimulationEventBase",
     "SimulationEventCreate",
     "SimulationEventResponse",
+    "WeatherZoneBase",
+    "WeatherZoneCreate",
+    "WeatherZoneResponse",
+    "WeatherAlertBase",
+    "WeatherAlertCreate",
+    "WeatherAlertResponse",
+    "WeatherConditionCard",
+    "WeatherImpactSummary",
+    "WeatherScenarioResponse",
+    "WeatherOverviewResponse",
 ]

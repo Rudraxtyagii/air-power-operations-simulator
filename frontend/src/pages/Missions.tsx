@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  Plus, 
-  Eye, 
-  Edit2, 
-  Trash2, 
+import {
+  Search,
+  Plus,
+  Eye,
+  Edit2,
+  Trash2,
   Crosshair,
   X,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 import { api } from '../services/api';
 import type { Mission, Priority, MissionStatus } from '../types';
@@ -61,26 +61,26 @@ export const Missions: React.FC = () => {
   const getPriorityBadge = (priority: Priority) => {
     switch (priority) {
       case 'High':
-        return 'bg-red-500/20 text-red-400 border-red-500/40';
+        return 'bg-[#FDE8E8] text-[#F04452] border-[#F04452]/30';
       case 'Medium':
-        return 'bg-amber-500/20 text-amber-400 border-amber-500/40';
+        return 'bg-[#FEF3C7] text-[#D97706] border-[#F4B740]/30';
       case 'Low':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/40';
+        return 'bg-[#DEF7EC] text-[#059669] border-[#25C98A]/30';
     }
   };
 
   const getStatusBadge = (status: MissionStatus) => {
     switch (status) {
       case 'Scheduled':
-        return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40';
+        return 'bg-[#E1EFFE] text-[#1D4ED8] border-[#4285F4]/30';
       case 'Pending':
-        return 'bg-amber-500/20 text-amber-400 border-amber-500/40';
+        return 'bg-[#FEF3C7] text-[#D97706] border-[#F4B740]/30';
       case 'Ongoing':
-        return 'bg-sky-500/20 text-sky-400 border-sky-500/40';
+        return 'bg-[#DEF7EC] text-[#059669] border-[#25C98A]/30';
       case 'Completed':
-        return 'bg-teal-500/20 text-teal-400 border-teal-500/40';
+        return 'bg-[#DEF7EC] text-[#059669] border-[#25C98A]/30';
       case 'Delayed':
-        return 'bg-red-500/20 text-red-400 border-red-500/40';
+        return 'bg-[#FDE8E8] text-[#F04452] border-[#F04452]/30';
     }
   };
 
@@ -154,49 +154,49 @@ export const Missions: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-[#EAF2FC] min-h-screen text-[#14264A]">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#C2D5ED]/60">
         <div>
           <div className="flex items-center gap-2.5">
-            <h2 className="text-xl font-bold text-white tracking-tight">Mission Management</h2>
-            {isLoading && <RefreshCw className="w-4 h-4 text-sky-400 animate-spin" />}
+            <h2 className="text-2xl font-extrabold text-[#14264A] tracking-tight">Mission Management</h2>
+            {isLoading && <RefreshCw className="w-4 h-4 text-[#4285F4] animate-spin" />}
           </div>
-          <p className="text-xs text-slate-400">
-            Create, view and manage missions with priority, time window and resource requirements (PostgreSQL Connected)
+          <p className="text-xs text-[#607391] font-medium">
+            Create, view and manage sorties with priorities, flight windows and resource requirements (PostgreSQL Connected)
           </p>
         </div>
 
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-900/40 transition"
+          className="clay-btn-primary flex items-center gap-2 px-4 py-2.5 text-xs cursor-pointer shadow-md"
         >
           <Plus className="w-4 h-4" />
-          Add Mission
+          Add Sortie
         </button>
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 text-amber-200 text-xs flex items-center justify-between font-mono">
+        <div className="p-3.5 rounded-2xl bg-[#FEF3C7] border border-[#F4B740]/40 text-[#92400E] text-xs flex items-center justify-between font-mono">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-400" />
+            <AlertCircle className="w-4 h-4 text-[#F4B740]" />
             <span>{errorMsg}</span>
           </div>
-          <button onClick={() => setErrorMsg(null)} className="text-amber-400 hover:text-white">✕</button>
+          <button onClick={() => setErrorMsg(null)} className="text-[#92400E] hover:text-[#78350F]">✕</button>
         </div>
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 bg-[#0d131f] p-3.5 rounded-xl border border-slate-800">
+      <div className="clay-card p-3.5 flex flex-col md:flex-row items-stretch md:items-center gap-3">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#607391]" />
           <input
             type="text"
-            placeholder="Search missions..."
+            placeholder="Search sorties by code, name or zone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition"
+            className="w-full pl-10 pr-4 py-2 bg-white/80 border border-[#C2D5ED] rounded-xl text-xs text-[#14264A] placeholder-[#607391] focus:outline-none focus:border-[#4285F4] shadow-xs"
           />
         </div>
 
@@ -204,7 +204,7 @@ export const Missions: React.FC = () => {
         <select
           value={priorityFilter}
           onChange={(e) => setPriorityFilter(e.target.value)}
-          className="px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-sky-500"
+          className="px-3.5 py-2 bg-white/80 border border-[#C2D5ED] rounded-xl text-xs font-semibold text-[#14264A] focus:outline-none focus:border-[#4285F4] shadow-xs"
         >
           <option value="All">All Priorities</option>
           <option value="High">High</option>
@@ -216,7 +216,7 @@ export const Missions: React.FC = () => {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-sky-500"
+          className="px-3.5 py-2 bg-white/80 border border-[#C2D5ED] rounded-xl text-xs font-semibold text-[#14264A] focus:outline-none focus:border-[#4285F4] shadow-xs"
         >
           <option value="All">All Status</option>
           <option value="Scheduled">Scheduled</option>
@@ -228,25 +228,25 @@ export const Missions: React.FC = () => {
       </div>
 
       {/* Missions Table */}
-      <div className="rounded-xl bg-[#090e1a] border border-slate-800 overflow-hidden shadow-sm">
+      <div className="clay-card overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#0e1626] border-b border-slate-800 text-slate-400 font-semibold tracking-wider uppercase text-[11px]">
+            <thead className="bg-[#EAF2FC] border-b border-[#C2D5ED]/80 text-[#607391] font-bold uppercase text-[10px] tracking-wider">
               <tr>
-                <th className="py-3.5 px-4">ID</th>
-                <th className="py-3.5 px-4">Mission Name</th>
+                <th className="py-3.5 px-4">Code</th>
+                <th className="py-3.5 px-4">Sortie Name</th>
                 <th className="py-3.5 px-4">Priority</th>
-                <th className="py-3.5 px-4">Location</th>
-                <th className="py-3.5 px-4">Time Window</th>
-                <th className="py-3.5 px-4">Required Resources</th>
+                <th className="py-3.5 px-4">Location Sector</th>
+                <th className="py-3.5 px-4">Flight Window</th>
+                <th className="py-3.5 px-4">Required Assets</th>
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-medium">
+            <tbody className="divide-y divide-[#C2D5ED]/40 font-medium text-[#14264A]">
               {missions.length === 0 && !isLoading ? (
                 <tr>
-                  <td colSpan={8} className="py-10 text-center text-slate-500">
+                  <td colSpan={8} className="py-10 text-center text-[#607391]">
                     No missions found matching query.
                   </td>
                 </tr>
@@ -254,25 +254,25 @@ export const Missions: React.FC = () => {
                 missions.map((mission) => (
                   <tr
                     key={mission.id}
-                    className="hover:bg-slate-900/50 transition-colors text-slate-300"
+                    className="hover:bg-white/50 transition-colors"
                   >
-                    <td className="py-3.5 px-4 font-mono text-sky-400 font-bold">{mission.id}</td>
-                    <td className="py-3.5 px-4 font-semibold text-white">{mission.name}</td>
+                    <td className="py-3.5 px-4 font-mono text-[#4285F4] font-extrabold">{mission.id}</td>
+                    <td className="py-3.5 px-4 font-bold">{mission.name}</td>
                     <td className="py-3.5 px-4">
                       <span
-                        className={`px-2.5 py-1 rounded text-[11px] font-semibold border ${getPriorityBadge(
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border shadow-xs ${getPriorityBadge(
                           mission.priority
                         )}`}
                       >
                         {mission.priority}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-slate-300 font-medium">{mission.location}</td>
-                    <td className="py-3.5 px-4 font-mono text-slate-400">{mission.timeWindow}</td>
-                    <td className="py-3.5 px-4 text-slate-300">{mission.requiredResources}</td>
+                    <td className="py-3.5 px-4 font-semibold">{mission.location}</td>
+                    <td className="py-3.5 px-4 font-mono text-[#607391]">{mission.timeWindow}</td>
+                    <td className="py-3.5 px-4 text-[#14264A]">{mission.requiredResources}</td>
                     <td className="py-3.5 px-4">
                       <span
-                        className={`px-2.5 py-1 rounded text-[11px] font-semibold border ${getStatusBadge(
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border shadow-xs ${getStatusBadge(
                           mission.status
                         )}`}
                       >
@@ -280,27 +280,27 @@ export const Missions: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2 text-slate-400">
+                      <div className="flex items-center justify-end gap-1.5 text-[#607391]">
                         <button
                           onClick={() => setViewMission(mission)}
-                          className="p-1 hover:text-sky-400 transition"
+                          className="clay-btn p-1.5 text-[#4285F4] hover:text-blue-700 cursor-pointer"
                           title="View details"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setEditingMission(mission)}
-                          className="p-1 hover:text-amber-400 transition"
+                          className="clay-btn p-1.5 text-[#D97706] hover:text-amber-700 cursor-pointer"
                           title="Edit mission"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(mission)}
-                          className="p-1 hover:text-red-400 transition"
+                          className="clay-btn p-1.5 text-[#F04452] hover:text-red-700 cursor-pointer"
                           title="Delete mission"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </td>
@@ -314,39 +314,41 @@ export const Missions: React.FC = () => {
 
       {/* Modal: Add Mission */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0d1322] border border-slate-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-base font-bold text-white">Create Synthetic Mission (PostgreSQL)</h3>
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="clay-card max-w-md w-full p-6 shadow-2xl bg-[#EAF2FC] space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#C2D5ED]/70">
+              <h3 className="text-base font-bold text-[#14264A] flex items-center gap-2">
+                <Crosshair className="w-4 h-4 text-[#4285F4]" />
+                Create Synthetic Sortie (PostgreSQL)
+              </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-white"
+                className="clay-btn p-1.5 text-[#607391] hover:text-[#14264A] cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <form onSubmit={handleAddMission} className="space-y-4 mt-4 text-xs">
+
+            <form onSubmit={handleAddMission} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">Mission Callout Name</label>
+                <label className="block text-xs font-bold text-[#14264A] mb-1">Sortie Name</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Surveillance Echo"
+                  placeholder="e.g., Recon Alpha Patrol"
                   value={newMission.name}
                   onChange={(e) => setNewMission({ ...newMission, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                  className="w-full px-3 py-2 bg-white border border-[#C2D5ED] rounded-xl text-xs text-[#14264A] focus:outline-none focus:border-[#4285F4]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-400 mb-1">Priority</label>
+                  <label className="block text-xs font-bold text-[#14264A] mb-1">Priority</label>
                   <select
                     value={newMission.priority}
-                    onChange={(e) =>
-                      setNewMission({ ...newMission, priority: e.target.value as Priority })
-                    }
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                    onChange={(e) => setNewMission({ ...newMission, priority: e.target.value as Priority })}
+                    className="w-full px-3 py-2 bg-white border border-[#C2D5ED] rounded-xl text-xs text-[#14264A]"
                   >
                     <option value="High">High</option>
                     <option value="Medium">Medium</option>
@@ -354,11 +356,11 @@ export const Missions: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-1">Target Sector</label>
+                  <label className="block text-xs font-bold text-[#14264A] mb-1">Operational Zone</label>
                   <select
                     value={newMission.location}
                     onChange={(e) => setNewMission({ ...newMission, location: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                    className="w-full px-3 py-2 bg-white border border-[#C2D5ED] rounded-xl text-xs text-[#14264A]"
                   >
                     <option value="Zone A">Zone A</option>
                     <option value="Zone B">Zone B</option>
@@ -368,42 +370,33 @@ export const Missions: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 mb-1">Time Window</label>
-                  <input
-                    type="text"
-                    value={newMission.timeWindow}
-                    onChange={(e) => setNewMission({ ...newMission, timeWindow: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 mb-1">Resource Requirement</label>
-                  <input
-                    type="text"
-                    value={newMission.requiredResources}
-                    onChange={(e) =>
-                      setNewMission({ ...newMission, requiredResources: e.target.value })
-                    }
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-[#14264A] mb-1">Required Assets</label>
+                <select
+                  value={newMission.requiredResources}
+                  onChange={(e) => setNewMission({ ...newMission, requiredResources: e.target.value })}
+                  className="w-full px-3 py-2 bg-white border border-[#C2D5ED] rounded-xl text-xs text-[#14264A]"
+                >
+                  <option value="1 Type-A">1 Type-A Aircraft</option>
+                  <option value="2 Type-A">2 Type-A Aircraft</option>
+                  <option value="1 Type-B">1 Type-B Aircraft</option>
+                  <option value="1 Type-C">1 Type-C Aircraft</option>
+                </select>
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-[#C2D5ED]/70">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 bg-slate-800 rounded-lg text-slate-300"
+                  className="clay-btn px-4 py-2 text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold"
+                  className="clay-btn-primary px-4 py-2 text-xs cursor-pointer shadow-md"
                 >
-                  Confirm & Schedule
+                  Create Sortie
                 </button>
               </div>
             </form>
@@ -411,40 +404,93 @@ export const Missions: React.FC = () => {
         </div>
       )}
 
-      {/* Modal: Edit Mission */}
-      {editingMission && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0d1322] border border-slate-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-base font-bold text-white">Edit Mission {editingMission.id}</h3>
+      {/* Modal: View Mission */}
+      {viewMission && (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="clay-card max-w-md w-full p-6 shadow-2xl bg-[#EAF2FC] space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#C2D5ED]/70">
+              <h3 className="text-base font-bold text-[#14264A] flex items-center gap-2">
+                <Crosshair className="w-4 h-4 text-[#4285F4]" />
+                Sortie Telemetry: {viewMission.id}
+              </h3>
               <button
-                onClick={() => setEditingMission(null)}
-                className="text-slate-400 hover:text-white"
+                onClick={() => setViewMission(null)}
+                className="clay-btn p-1.5 text-[#607391] hover:text-[#14264A] cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <form onSubmit={handleUpdateMission} className="space-y-4 mt-4 text-xs">
+
+            <div className="space-y-2.5 text-xs">
+              <div className="p-3 rounded-2xl bg-white/70">
+                <div className="font-bold text-[#14264A] text-sm">{viewMission.name}</div>
+                <div className="text-[#607391] mt-0.5">Assigned Sector: {viewMission.location}</div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 rounded-xl bg-white/60">
+                  <span className="text-[#607391] block text-[10px]">Priority</span>
+                  <span className="font-bold">{viewMission.priority}</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white/60">
+                  <span className="text-[#607391] block text-[10px]">Status</span>
+                  <span className="font-bold">{viewMission.status}</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white/60">
+                  <span className="text-[#607391] block text-[10px]">Time Window</span>
+                  <span className="font-mono font-bold">{viewMission.timeWindow}</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white/60">
+                  <span className="text-[#607391] block text-[10px]">Asset Allocation</span>
+                  <span className="font-bold">{viewMission.requiredResources}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setViewMission(null)}
+                className="clay-btn-primary px-4 py-2 text-xs cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Mission */}
+      {editingMission && (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="clay-card max-w-md w-full p-6 shadow-2xl bg-[#EAF2FC] space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#C2D5ED]/70">
+              <h3 className="text-base font-bold text-[#14264A]">Update Sortie {editingMission.id}</h3>
+              <button
+                onClick={() => setEditingMission(null)}
+                className="clay-btn p-1.5 text-[#607391] hover:text-[#14264A] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateMission} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-400 mb-1">Mission Name</label>
+                <label className="block text-xs font-bold text-[#14264A] mb-1">Sortie Name</label>
                 <input
                   type="text"
-                  required
                   value={editingMission.name}
                   onChange={(e) => setEditingMission({ ...editingMission, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                  className="w-full px-3 py-2 bg-white border border-[#C2D5ED] rounded-xl text-xs text-[#14264A]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-400 mb-1">Priority</label>
+                  <label className="block text-xs font-bold text-[#14264A] mb-1">Priority</label>
                   <select
                     value={editingMission.priority}
-                    onChange={(e) =>
-                      setEditingMission({ ...editingMission, priority: e.target.value as Priority })
-                    }
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                    onChange={(e) => setEditingMission({ ...editingMission, priority: e.target.value as Priority })}
+                    className="w-full px-3 py-2 bg-white border border-[#C2D5ED] rounded-xl text-xs text-[#14264A]"
                   >
                     <option value="High">High</option>
                     <option value="Medium">Medium</option>
@@ -452,93 +498,37 @@ export const Missions: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-400 mb-1">Status</label>
+                  <label className="block text-xs font-bold text-[#14264A] mb-1">Status</label>
                   <select
                     value={editingMission.status}
-                    onChange={(e) =>
-                      setEditingMission({ ...editingMission, status: e.target.value as MissionStatus })
-                    }
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                    onChange={(e) => setEditingMission({ ...editingMission, status: e.target.value as MissionStatus })}
+                    className="w-full px-3 py-2 bg-white border border-[#C2D5ED] rounded-xl text-xs text-[#14264A]"
                   >
                     <option value="Scheduled">Scheduled</option>
-                    <option value="Ongoing">Ongoing</option>
                     <option value="Pending">Pending</option>
+                    <option value="Ongoing">Ongoing</option>
                     <option value="Completed">Completed</option>
                     <option value="Delayed">Delayed</option>
                   </select>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-[#C2D5ED]/70">
                 <button
                   type="button"
                   onClick={() => setEditingMission(null)}
-                  className="px-4 py-2 bg-slate-800 rounded-lg text-slate-300"
+                  className="clay-btn px-4 py-2 text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-amber-600 rounded-lg text-white font-semibold"
+                  className="clay-btn-primary px-4 py-2 text-xs cursor-pointer shadow-md"
                 >
                   Save Changes
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: View Mission Details */}
-      {viewMission && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0d1322] border border-sky-500/40 rounded-xl max-w-md w-full p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <Crosshair className="w-5 h-5 text-sky-400" />
-                <h3 className="text-base font-bold text-white">Mission {viewMission.id}</h3>
-              </div>
-              <button
-                onClick={() => setViewMission(null)}
-                className="text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="space-y-3 mt-4 text-xs">
-              <div className="flex justify-between py-1 border-b border-slate-800">
-                <span className="text-slate-400">Mission Name:</span>
-                <span className="font-semibold text-white">{viewMission.name}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800">
-                <span className="text-slate-400">Priority:</span>
-                <span className="font-semibold text-white">{viewMission.priority}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800">
-                <span className="text-slate-400">Airspace Sector:</span>
-                <span className="font-semibold text-white">{viewMission.location}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800">
-                <span className="text-slate-400">Allocated Time Window:</span>
-                <span className="font-mono text-sky-400">{viewMission.timeWindow}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-800">
-                <span className="text-slate-400">Required Fleet Assets:</span>
-                <span className="font-semibold text-white">{viewMission.requiredResources}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-slate-400">Current Dispatch Status:</span>
-                <span className="font-semibold text-emerald-400">{viewMission.status}</span>
-              </div>
-            </div>
-            <div className="mt-5 pt-3 border-t border-slate-800 flex justify-end">
-              <button
-                onClick={() => setViewMission(null)}
-                className="px-4 py-2 bg-slate-800 rounded-lg text-slate-300 text-xs"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}

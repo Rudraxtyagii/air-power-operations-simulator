@@ -2,12 +2,19 @@
 
 @layer base {
   :root {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
+    --bg-main: #EAF2FC;
+    --bg-secondary: #DCE8F8;
+    --card-bg: #EAF2FC;
+    --text-primary: #14264A;
+    --text-secondary: #607391;
+    --primary-blue: #4285F4;
+    --alert-high: #F04452;
+    --alert-medium: #F4B740;
+    --alert-low: #25C98A;
   }
 
   * {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(166, 188, 220, 0.3);
   }
 
   html, body, #root {
@@ -15,75 +22,151 @@
     width: 100%;
     margin: 0;
     padding: 0;
-    background-color: #070b14;
-    color: #e2e8f0;
+    background-color: #EAF2FC;
+    color: #14264A;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow-x: hidden;
   }
 }
 
-/* Custom Tactical Command Center Scrollbar */
+/* Custom Claymorphism Light Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090e1a;
+  background: #EAF2FC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 3px;
+  background: #C2D5ED;
+  border-radius: 9999px;
+  border: 1px solid #EAF2FC;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #A0BCD8;
 }
 
-/* Glowing effects for radar and badges */
-.tactical-glow-blue {
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+/* Base Claymorphism Card */
+.clay-card {
+  background: #EAF2FC;
+  border-radius: 20px;
+  box-shadow: 6px 6px 14px rgba(166, 188, 220, 0.45), -6px -6px 14px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.tactical-glow-emerald {
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+.clay-card-hover:hover {
+  box-shadow: 8px 8px 18px rgba(166, 188, 220, 0.55), -8px -8px 18px rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
 }
 
-.tactical-glow-amber {
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+/* Recessed Inset Card */
+.clay-inset {
+  background: #EAF2FC;
+  border-radius: 16px;
+  box-shadow: inset 3px 3px 6px rgba(166, 188, 220, 0.4), inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
-.tactical-glow-red {
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+/* Clay Pill Buttons */
+.clay-btn {
+  background: #EAF2FC;
+  border-radius: 9999px;
+  box-shadow: 4px 4px 8px rgba(166, 188, 220, 0.45), -4px -4px 8px rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: #14264A;
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
 }
 
-/* Radar scan sweep animation */
-@keyframes radar-sweep {
-  0% {
+.clay-btn:hover {
+  box-shadow: 5px 5px 10px rgba(166, 188, 220, 0.5), -5px -5px 10px rgba(255, 255, 255, 1);
+  color: #4285F4;
+}
+
+.clay-btn:active {
+  box-shadow: inset 2px 2px 4px rgba(166, 188, 220, 0.5), inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+  transform: translateY(1px);
+}
+
+/* Primary Active Vibrant Blue Button / Pill */
+.clay-btn-primary {
+  background: linear-gradient(135deg, #4285F4 0%, #2563EB 100%);
+  color: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(66, 133, 244, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  transition: all 0.15s ease-in-out;
+}
+
+.clay-btn-primary:hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  box-shadow: 0 6px 18px rgba(66, 133, 244, 0.45);
+}
+
+.clay-btn-primary:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(1px);
+}
+
+/* Alert-Themed Pastel Clay Cards */
+.clay-card-red {
+  background: linear-gradient(145deg, #FDE8E8 0%, #FDF2F2 100%);
+  border-radius: 20px;
+  box-shadow: 5px 5px 12px rgba(240, 68, 82, 0.15), -5px -5px 12px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(240, 68, 82, 0.22);
+}
+
+.clay-card-amber {
+  background: linear-gradient(145deg, #FEF3C7 0%, #FFFBEB 100%);
+  border-radius: 20px;
+  box-shadow: 5px 5px 12px rgba(244, 183, 64, 0.18), -5px -5px 12px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(244, 183, 64, 0.28);
+}
+
+.clay-card-green {
+  background: linear-gradient(145deg, #DEF7EC 0%, #ECFDF5 100%);
+  border-radius: 20px;
+  box-shadow: 5px 5px 12px rgba(37, 201, 138, 0.15), -5px -5px 12px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(37, 201, 138, 0.24);
+}
+
+.clay-card-blue {
+  background: linear-gradient(145deg, #E1EFFE 0%, #EFF6FF 100%);
+  border-radius: 20px;
+  box-shadow: 5px 5px 12px rgba(66, 133, 244, 0.15), -5px -5px 12px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(66, 133, 244, 0.22);
+}
+
+/* Radar & Pulsing Effects */
+@keyframes weather-pulse {
+  0%, 100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.08);
+  }
+}
+
+.animate-weather-pulse {
+  animation: weather-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sweep-radar {
+  from {
     transform: rotate(0deg);
   }
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }
 
 .animate-radar-sweep {
-  animation: radar-sweep 6s linear infinite;
-}
-
-/* Pulse ping subtle */
-@keyframes beacon-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(1.15);
-  }
-}
-
-.animate-beacon {
-  animation: beacon-pulse 2.5s ease-in-out infinite;
+  animation: sweep-radar 8s linear infinite;
 }

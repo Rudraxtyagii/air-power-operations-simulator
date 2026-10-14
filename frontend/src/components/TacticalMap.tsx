@@ -82,15 +82,15 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
   const getStatusColor = (status: MapAsset['status']) => {
     switch (status) {
       case 'available':
-        return '#10b981'; // emerald
+        return '#25C98A';
       case 'in_mission':
-        return '#0284c7'; // blue
+        return '#4285F4';
       case 'maintenance':
-        return '#f59e0b'; // amber
+        return '#F4B740';
       case 'alert':
-        return '#ef4444'; // red
+        return '#F04452';
       default:
-        return '#94a3b8';
+        return '#607391';
     }
   };
 
@@ -102,46 +102,46 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
 
   return (
     <div
-      className={`relative rounded-xl bg-[#080d19] border border-slate-800 overflow-hidden flex flex-col transition-all duration-300 ${
-        isExpanded ? 'fixed inset-4 z-50 shadow-2xl' : 'h-[380px] w-full'
+      className={`clay-card relative overflow-hidden flex flex-col transition-all duration-300 ${
+        isExpanded ? 'fixed inset-4 z-50 shadow-2xl bg-[#EAF2FC]' : 'h-[380px] w-full'
       }`}
     >
       {/* Map Header Bar */}
-      <div className="absolute top-0 inset-x-0 h-12 bg-gradient-to-b from-[#080d19]/95 via-[#080d19]/80 to-transparent z-20 px-4 flex items-center justify-between pointer-events-none">
+      <div className="absolute top-0 inset-x-0 h-12 bg-gradient-to-b from-[#EAF2FC] via-[#EAF2FC]/80 to-transparent z-20 px-4 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-2 pointer-events-auto">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-sm font-semibold tracking-wide text-slate-200">
-            Live Operations Map
+          <div className="w-2.5 h-2.5 rounded-full bg-[#25C98A] animate-ping" />
+          <span className="text-sm font-bold tracking-tight text-[#14264A]">
+            Live Air Operations Tactical Grid
           </span>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/80 text-sky-400 border border-slate-700">
-            GRID-SEC-ALPHA
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#4285F4] border border-blue-200">
+            RADAR-SEC-ALPHA
           </span>
         </div>
 
-        <div className="flex items-center gap-3 pointer-events-auto">
+        <div className="flex items-center gap-2 pointer-events-auto">
           {/* Legend */}
-          <div className="hidden sm:flex items-center gap-3 bg-slate-900/90 border border-slate-800/80 rounded-lg px-3 py-1 text-[11px] font-medium text-slate-300">
+          <div className="hidden sm:flex items-center gap-3 bg-white/80 backdrop-blur-md border border-[#C2D5ED]/70 rounded-full px-3 py-1 text-[11px] font-bold text-[#14264A] shadow-xs">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]"></span>
+              <span className="w-2 h-2 rounded-full bg-[#25C98A]"></span>
               Available
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_6px_#0284c7]"></span>
+              <span className="w-2 h-2 rounded-full bg-[#4285F4]"></span>
               In Mission
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]"></span>
-              Maintenance
+              <span className="w-2 h-2 rounded-full bg-[#F4B740]"></span>
+              Attention
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444]"></span>
+              <span className="w-2 h-2 rounded-full bg-[#F04452]"></span>
               Alert
             </span>
           </div>
 
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-300 transition"
+            className="clay-btn p-1.5 cursor-pointer text-[#14264A] hover:text-[#4285F4]"
             title={isExpanded ? 'Exit Fullscreen' : 'Expand Map'}
           >
             {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -150,7 +150,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
       </div>
 
       {/* SVG Canvas Tactical Visualization */}
-      <div className="relative w-full h-full bg-[#050914] select-none flex-1 overflow-hidden">
+      <div className="relative w-full h-full bg-gradient-to-br from-[#d8e7f7] via-[#cce0f5] to-[#bed7f0] select-none flex-1 overflow-hidden">
         <svg
           viewBox="0 0 1000 600"
           className="w-full h-full object-cover"
@@ -158,61 +158,27 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
         >
           <defs>
             {/* Grid Pattern */}
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(30, 41, 59, 0.45)" strokeWidth="0.8" />
+            <pattern id="clayGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(166, 188, 220, 0.45)" strokeWidth="0.8" />
             </pattern>
-            <pattern id="grid-major" width="200" height="200" patternUnits="userSpaceOnUse">
-              <path d="M 200 0 L 0 0 0 200" fill="none" stroke="rgba(56, 189, 248, 0.08)" strokeWidth="1.2" />
+            <pattern id="clayGridMajor" width="200" height="200" patternUnits="userSpaceOnUse">
+              <path d="M 200 0 L 0 0 0 200" fill="none" stroke="rgba(66, 133, 244, 0.18)" strokeWidth="1.2" />
             </pattern>
-
-            {/* Glowing filter */}
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
 
             {/* Linear gradients for radar zones */}
-            <radialGradient id="radarSweepGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(56, 189, 248, 0.25)" />
-              <stop offset="80%" stopColor="rgba(56, 189, 248, 0.03)" />
+            <radialGradient id="clayRadarSweep" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(66, 133, 244, 0.28)" />
+              <stop offset="80%" stopColor="rgba(66, 133, 244, 0.04)" />
               <stop offset="100%" stopColor="transparent" />
             </radialGradient>
           </defs>
 
           {/* Grid Background */}
-          <rect width="1000" height="600" fill="url(#grid)" />
-          <rect width="1000" height="600" fill="url(#grid-major)" />
-
-          {/* Terrain / Topography Vector Contours */}
-          <g opacity="0.35">
-            <path
-              d="M 120 180 Q 220 110, 310 170 T 450 210 Q 520 280, 420 340 T 260 380 Q 140 330, 120 180 Z"
-              fill="rgba(15, 23, 42, 0.8)"
-              stroke="#1e293b"
-              strokeWidth="1.5"
-            />
-            <path
-              d="M 170 210 Q 240 160, 310 200 T 390 240 Q 420 290, 360 320 T 240 330 Q 180 300, 170 210 Z"
-              fill="rgba(24, 34, 53, 0.6)"
-              stroke="#334155"
-              strokeWidth="1"
-            />
-            <path
-              d="M 620 260 Q 750 180, 870 240 T 910 390 Q 820 480, 700 440 T 580 360 Q 590 280, 620 260 Z"
-              fill="rgba(15, 23, 42, 0.8)"
-              stroke="#1e293b"
-              strokeWidth="1.5"
-            />
-            <path
-              d="M 680 300 Q 770 230, 840 280 T 870 370 Q 790 420, 710 390 T 650 340 Z"
-              fill="rgba(24, 34, 53, 0.6)"
-              stroke="#334155"
-              strokeWidth="1"
-            />
-          </g>
+          <rect width="1000" height="600" fill="url(#clayGrid)" />
+          <rect width="1000" height="600" fill="url(#clayGridMajor)" />
 
           {/* Concentric Range Rings */}
-          <g stroke="rgba(56, 189, 248, 0.12)" strokeWidth="1" strokeDasharray="4 4" fill="none">
+          <g stroke="rgba(66, 133, 244, 0.2)" strokeWidth="1" strokeDasharray="4 4" fill="none">
             <circle cx="500" cy="300" r="100" />
             <circle cx="500" cy="300" r="220" />
             <circle cx="500" cy="300" r="340" />
@@ -223,16 +189,16 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
             <g className="origin-center animate-radar-sweep" style={{ transformOrigin: '500px 300px' }}>
               <path
                 d="M 500 300 L 840 300 A 340 340 0 0 0 740 60 Z"
-                fill="url(#radarSweepGradient)"
+                fill="url(#clayRadarSweep)"
               />
               <line
                 x1="500"
                 y1="300"
                 x2="840"
                 y2="300"
-                stroke="#38bdf8"
+                stroke="#4285F4"
                 strokeWidth="1.5"
-                opacity="0.7"
+                opacity="0.8"
               />
             </g>
           )}
@@ -245,16 +211,16 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
               y="60"
               width="360"
               height="220"
-              rx="12"
-              fill="rgba(14, 165, 233, 0.03)"
-              stroke="rgba(14, 165, 233, 0.25)"
-              strokeWidth="1"
+              rx="16"
+              fill="rgba(37, 201, 138, 0.08)"
+              stroke="#25C98A"
+              strokeWidth="1.5"
               strokeDasharray="6 4"
             />
-            <text x="100" y="90" fill="#38bdf8" fontSize="13" fontWeight="bold" letterSpacing="2">
-              ZONE A
+            <text x="100" y="90" fill="#065F46" fontSize="13" fontWeight="bold" letterSpacing="2">
+              ZONE A (NORTHWEST)
             </text>
-            <circle cx="95" cy="86" r="3" fill="#38bdf8" />
+            <circle cx="95" cy="86" r="3" fill="#25C98A" />
           </g>
 
           {/* ZONE B */}
@@ -264,16 +230,16 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
               y="320"
               width="380"
               height="240"
-              rx="12"
-              fill="rgba(14, 165, 233, 0.02)"
-              stroke="rgba(14, 165, 233, 0.2)"
-              strokeWidth="1"
+              rx="16"
+              fill="rgba(240, 68, 82, 0.08)"
+              stroke="#F04452"
+              strokeWidth="1.5"
               strokeDasharray="6 4"
             />
-            <text x="120" y="350" fill="#38bdf8" fontSize="13" fontWeight="bold" letterSpacing="2">
-              ZONE B
+            <text x="120" y="350" fill="#991B1B" fontSize="13" fontWeight="bold" letterSpacing="2">
+              ZONE B (SOUTHWEST - WEATHER ALERT)
             </text>
-            <circle cx="115" cy="346" r="3" fill="#38bdf8" />
+            <circle cx="115" cy="346" r="3" fill="#F04452" />
           </g>
 
           {/* ZONE C */}
@@ -283,16 +249,16 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
               y="60"
               width="400"
               height="240"
-              rx="12"
-              fill="rgba(14, 165, 233, 0.02)"
-              stroke="rgba(14, 165, 233, 0.2)"
-              strokeWidth="1"
+              rx="16"
+              fill="rgba(244, 183, 64, 0.08)"
+              stroke="#F4B740"
+              strokeWidth="1.5"
               strokeDasharray="6 4"
             />
-            <text x="560" y="90" fill="#38bdf8" fontSize="13" fontWeight="bold" letterSpacing="2">
-              ZONE C
+            <text x="560" y="90" fill="#92400E" fontSize="13" fontWeight="bold" letterSpacing="2">
+              ZONE C (NORTHEAST)
             </text>
-            <circle cx="555" cy="86" r="3" fill="#38bdf8" />
+            <circle cx="555" cy="86" r="3" fill="#F4B740" />
           </g>
 
           {/* ZONE D */}
@@ -302,54 +268,38 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
               y="320"
               width="420"
               height="240"
-              rx="12"
-              fill="rgba(14, 165, 233, 0.03)"
-              stroke="rgba(14, 165, 233, 0.25)"
-              strokeWidth="1"
+              rx="16"
+              fill="rgba(66, 133, 244, 0.08)"
+              stroke="#4285F4"
+              strokeWidth="1.5"
               strokeDasharray="6 4"
             />
-            <text x="540" y="350" fill="#38bdf8" fontSize="13" fontWeight="bold" letterSpacing="2">
-              ZONE D
+            <text x="540" y="350" fill="#1E40AF" fontSize="13" fontWeight="bold" letterSpacing="2">
+              ZONE D (SOUTHEAST)
             </text>
-            <circle cx="535" cy="346" r="3" fill="#38bdf8" />
+            <circle cx="535" cy="346" r="3" fill="#4285F4" />
           </g>
 
-          {/* Flight Routes / Corridors */}
+          {/* Flight Routes */}
           <g strokeDasharray="5 5" fill="none">
             <path
               d="M 240 170 Q 380 120, 580 190 T 780 230"
-              stroke="#0ea5e9"
-              strokeWidth="1.5"
-              opacity="0.6"
+              stroke="#4285F4"
+              strokeWidth="2"
+              opacity="0.7"
             />
             <path
               d="M 280 470 Q 480 520, 720 430"
-              stroke="#10b981"
-              strokeWidth="1.5"
-              opacity="0.6"
+              stroke="#25C98A"
+              strokeWidth="2"
+              opacity="0.7"
             />
             <path
               d="M 280 200 L 720 430"
-              stroke="#f59e0b"
-              strokeWidth="1.2"
-              opacity="0.4"
+              stroke="#F4B740"
+              strokeWidth="1.5"
+              opacity="0.5"
             />
-          </g>
-
-          {/* Waypoints */}
-          <g fill="#38bdf8" opacity="0.8">
-            <polygon points="380,116 384,124 376,124" />
-            <polygon points="580,186 584,194 576,194" />
-            <polygon points="480,516 484,524 476,524" />
-            <text x="388" y="122" fill="#64748b" fontSize="9" fontFamily="monospace">
-              WP-ALPHA
-            </text>
-            <text x="588" y="192" fill="#64748b" fontSize="9" fontFamily="monospace">
-              WP-BRAVO
-            </text>
-            <text x="488" y="522" fill="#64748b" fontSize="9" fontFamily="monospace">
-              WP-CHARLIE
-            </text>
           </g>
 
           {/* Aircraft Nodes on SVG */}
@@ -365,15 +315,15 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
                 className="cursor-pointer transition-transform duration-200"
                 onClick={() => setSelectedAsset(asset)}
               >
-                <circle cx={cx} cy={cy} r={isSel ? 18 : 12} fill={color} opacity="0.2" className="animate-ping" />
+                <circle cx={cx} cy={cy} r={isSel ? 20 : 14} fill={color} opacity="0.25" className="animate-ping" />
                 <circle
                   cx={cx}
                   cy={cy}
                   r={isSel ? 14 : 10}
-                  fill="#090d16"
+                  fill="#ffffff"
                   stroke={color}
-                  strokeWidth="2"
-                  filter="url(#glow)"
+                  strokeWidth="3"
+                  className="shadow-sm"
                 />
                 <g transform={`translate(${cx}, ${cy}) rotate(${asset.heading})`}>
                   <path
@@ -382,21 +332,21 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
                   />
                 </g>
                 <rect
-                  x={cx + 12}
+                  x={cx + 14}
                   y={cy - 12}
-                  width="44"
-                  height="16"
-                  rx="3"
-                  fill="#090d16"
+                  width="46"
+                  height="18"
+                  rx="6"
+                  fill="#ffffff"
                   stroke={color}
-                  strokeWidth="1"
-                  opacity="0.95"
+                  strokeWidth="1.5"
+                  className="shadow-xs"
                 />
                 <text
-                  x={cx + 34}
-                  y={cy - 1}
-                  fill="#f8fafc"
-                  fontSize="10"
+                  x={cx + 37}
+                  y={cy + 1}
+                  fill="#14264A"
+                  fontSize="11"
                   fontWeight="bold"
                   textAnchor="middle"
                   fontFamily="monospace"
@@ -410,19 +360,19 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
 
         {/* Selected Asset Floating Telemetry Drawer */}
         {selectedAsset && (
-          <div className="absolute bottom-3 left-3 bg-[#0d1322]/95 border border-sky-500/40 rounded-xl p-3 shadow-2xl backdrop-blur-md text-xs z-30 w-64 animate-in fade-in duration-200">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+          <div className="absolute bottom-3 left-3 clay-card p-4 shadow-xl backdrop-blur-md text-xs z-30 w-68 animate-in fade-in duration-200 bg-white/90">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#C2D5ED]/70">
               <div className="flex items-center gap-2">
                 <span
                   className="w-2.5 h-2.5 rounded-full"
                   style={{ backgroundColor: getStatusColor(selectedAsset.status) }}
                 />
-                <span className="font-bold text-slate-100 font-mono">{selectedAsset.id}</span>
-                <span className="text-[10px] text-slate-400 font-medium">({selectedAsset.name})</span>
+                <span className="font-extrabold text-[#14264A] font-mono">{selectedAsset.id}</span>
+                <span className="text-[10px] text-[#607391] font-semibold">({selectedAsset.name})</span>
               </div>
               <button
                 onClick={() => setSelectedAsset(null)}
-                className="text-slate-400 hover:text-slate-200 text-xs px-1"
+                className="text-[#607391] hover:text-[#14264A] text-xs px-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -430,37 +380,37 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
 
             <div className="grid grid-cols-2 gap-y-1.5 gap-x-2 text-[11px]">
               <div>
-                <span className="text-slate-400">Sector:</span>{' '}
-                <span className="text-slate-200 font-semibold">{selectedAsset.zone}</span>
+                <span className="text-[#607391]">Sector:</span>{' '}
+                <span className="text-[#14264A] font-bold">{selectedAsset.zone}</span>
               </div>
               <div>
-                <span className="text-slate-400">Heading:</span>{' '}
-                <span className="text-slate-200 font-mono">{selectedAsset.heading}°</span>
+                <span className="text-[#607391]">Heading:</span>{' '}
+                <span className="text-[#14264A] font-mono font-semibold">{selectedAsset.heading}°</span>
               </div>
               <div>
-                <span className="text-slate-400">Speed:</span>{' '}
-                <span className="text-slate-200 font-mono">{selectedAsset.speed}</span>
+                <span className="text-[#607391]">Speed:</span>{' '}
+                <span className="text-[#14264A] font-mono font-semibold">{selectedAsset.speed}</span>
               </div>
               <div>
-                <span className="text-slate-400">Altitude:</span>{' '}
-                <span className="text-slate-200 font-mono">{selectedAsset.alt}</span>
+                <span className="text-[#607391]">Altitude:</span>{' '}
+                <span className="text-[#14264A] font-mono font-semibold">{selectedAsset.alt}</span>
               </div>
             </div>
 
-            <div className="mt-2 pt-2 border-t border-slate-800/80 text-[11px]">
-              <span className="text-slate-400">Current Mission:</span>
-              <p className="text-sky-300 font-medium truncate">{selectedAsset.mission}</p>
+            <div className="mt-2 pt-2 border-t border-[#C2D5ED]/70 text-[11px]">
+              <span className="text-[#607391]">Assigned Mission:</span>
+              <p className="text-[#4285F4] font-bold truncate">{selectedAsset.mission}</p>
             </div>
           </div>
         )}
 
         {/* Radar scan toggle control */}
-        <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-slate-900/80 border border-slate-800 rounded-lg px-2.5 py-1 text-[11px] text-slate-300">
+        <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-white/85 border border-[#C2D5ED]/70 rounded-full px-3 py-1 text-[11px] text-[#14264A] shadow-xs">
           <button
             onClick={() => setShowRadarScan(!showRadarScan)}
-            className="hover:text-sky-300 flex items-center gap-1"
+            className="hover:text-[#4285F4] flex items-center gap-1.5 font-semibold cursor-pointer"
           >
-            <Compass className="w-3.5 h-3.5 text-sky-400" />
+            <Compass className="w-3.5 h-3.5 text-[#4285F4]" />
             <span>Radar Sweep: {showRadarScan ? 'ACTIVE' : 'OFF'}</span>
           </button>
         </div>
