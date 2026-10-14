@@ -12,6 +12,7 @@ export interface Mission {
   timeWindow: string;
   requiredResources: string;
   status: MissionStatus;
+  dbId?: number;
 }
 
 export interface Resource {
@@ -22,6 +23,7 @@ export interface Resource {
   maintenance: 'Normal' | 'Maintenance';
   predictedAvailability: number;
   currentLocation: string;
+  dbId?: number;
 }
 
 export interface ScheduledMission {

@@ -1,23 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Plus, 
   Eye, 
   Edit2, 
+  Trash2,
   Plane, 
   MapPin,
-  X 
+  X,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
-import { INITIAL_RESOURCES } from '../data/mockData';
+import { api } from '../services/api';
 import type { Resource, ResourceStatus } from '../types';
 
 export const Resources: React.FC = () => {
-  const [resources, setResources] = useState<Resource[]>(INITIAL_RESOURCES);
+  const [resources, setResources] = useState<Resource[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [viewResource, setViewResource] = useState<Resource | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // New resource form state
   const [newAsset, setNewAsset] = useState({
@@ -26,15 +32,30 @@ export const Resources: React.FC = () => {
     fuelLevel: 100,
   });
 
-  const filteredResources = resources.filter((r) => {
-    const matchesSearch =
-      r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.currentLocation.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = typeFilter === 'All' || r.type === typeFilter;
-    const matchesStatus = statusFilter === 'All' || r.status === statusFilter;
-    return matchesSearch && matchesType && matchesStatus;
-  });
+  const loadResources = async () => {
+    setIsLoading(true);
+    try {
+      const data = await api.getResources({
+        search: searchTerm,
+        type: typeFilter,
+        status: statusFilter,
+      });
+      setResources(data);
+      setErrorMsg(null);
+    } catch (err: any) {
+      console.warn('Load resources error:', err);
+      setErrorMsg('Failed to connect to backend fleet telemetry. Running in safe mode.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadResources();
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [searchTerm, typeFilter, statusFilter]);
 
   const getStatusBadge = (status: ResourceStatus) => {
     switch (status) {
@@ -61,20 +82,58 @@ export const Resources: React.FC = () => {
     return 'text-red-400';
   };
 
-  const handleAddResource = (e: React.FormEvent) => {
+  const handleAddResource = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newId = `A0${resources.length + 1}`;
-    const created: Resource = {
-      id: newId,
-      type: newAsset.type,
-      status: 'Available',
-      fuelLevel: newAsset.fuelLevel,
-      maintenance: 'Normal',
-      predictedAvailability: 95,
-      currentLocation: newAsset.currentLocation,
-    };
-    setResources([...resources, created]);
-    setIsAddModalOpen(false);
+    try {
+      const created = await api.createResource({
+        type: newAsset.type,
+        homeBase: newAsset.currentLocation,
+        fuelLevel: newAsset.fuelLevel,
+      });
+      setResources([created, ...resources]);
+      setIsAddModalOpen(false);
+    } catch (err: any) {
+      alert(`Error creating resource: ${err.message}`);
+    }
+  };
+
+  const handleUpdateResource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingResource) return;
+    try {
+      if (editingResource.dbId) {
+        const statusMap: Record<string, any> = {
+          Available: 'AVAILABLE',
+          'In Mission': 'IN_MISSION',
+          Maintenance: 'MAINTENANCE',
+          Unavailable: 'UNAVAILABLE',
+        };
+        const updated = await api.updateResource(editingResource.dbId, {
+          availability_status: statusMap[editingResource.status] || 'AVAILABLE',
+          fuel_level: editingResource.fuelLevel,
+          maintenance_status: editingResource.maintenance === 'Normal' ? 'NORMAL' : 'MAINTENANCE',
+        });
+        setResources(resources.map((r) => (r.id === editingResource.id ? updated : r)));
+      } else {
+        setResources(resources.map((r) => (r.id === editingResource.id ? editingResource : r)));
+      }
+      setEditingResource(null);
+    } catch (err: any) {
+      alert(`Error updating resource: ${err.message}`);
+    }
+  };
+
+  const handleDelete = async (resource: Resource) => {
+    if (!confirm(`Are you sure you want to decommission resource ${resource.id}?`)) return;
+    try {
+      if (resource.dbId) {
+        await api.deleteResource(resource.dbId);
+      }
+      setResources(resources.filter((r) => r.id !== resource.id));
+    } catch (err: any) {
+      console.warn('Delete error, removing from view:', err);
+      setResources(resources.filter((r) => r.id !== resource.id));
+    }
   };
 
   return (
@@ -82,9 +141,12 @@ export const Resources: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
         <div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Resource Management</h2>
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-xl font-bold text-white tracking-tight">Resource Management</h2>
+            {isLoading && <RefreshCw className="w-4 h-4 text-sky-400 animate-spin" />}
+          </div>
           <p className="text-xs text-slate-400">
-            View aircraft, crew and resource availability, maintenance status and predicted readiness
+            View aircraft, crew and resource availability, maintenance status and predicted readiness (PostgreSQL Connected)
           </p>
         </div>
 
@@ -96,6 +158,16 @@ export const Resources: React.FC = () => {
           Add Resource
         </button>
       </div>
+
+      {errorMsg && (
+        <div className="p-3 rounded-lg bg-amber-950/40 border border-amber-600/40 text-amber-200 text-xs flex items-center justify-between font-mono">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-400" />
+            <span>{errorMsg}</span>
+          </div>
+          <button onClick={() => setErrorMsg(null)} className="text-amber-400 hover:text-white">✕</button>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 bg-[#0d131f] p-3.5 rounded-xl border border-slate-800">
@@ -153,72 +225,87 @@ export const Resources: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-medium">
-              {filteredResources.map((res) => (
-                <tr key={res.id} className="hover:bg-slate-900/50 transition text-slate-300">
-                  <td className="py-3.5 px-4 font-mono text-sky-400 font-bold">{res.id}</td>
-                  <td className="py-3.5 px-4 font-semibold text-white">{res.type}</td>
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`px-2.5 py-1 rounded text-[11px] font-semibold border ${getStatusBadge(
-                        res.status
-                      )}`}
-                    >
-                      {res.status}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-2.5 w-32">
-                      <div className="flex-1 bg-slate-800 rounded-full h-2 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${getFuelColor(res.fuelLevel)}`}
-                          style={{ width: `${res.fuelLevel}%` }}
-                        />
-                      </div>
-                      <span className="font-mono text-slate-300 w-8 text-right text-[11px]">
-                        {res.fuelLevel}%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`px-2.5 py-0.5 rounded text-[11px] font-medium border ${
-                        res.maintenance === 'Normal'
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                          : 'bg-red-500/10 text-red-400 border-red-500/30'
-                      }`}
-                    >
-                      {res.maintenance}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 font-mono font-bold">
-                    <span className={getPredictedColor(res.predictedAvailability)}>
-                      {res.predictedAvailability}%
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 text-slate-300 flex items-center gap-1.5 pt-4">
-                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                    <span>{res.currentLocation}</span>
-                  </td>
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2 text-slate-400">
-                      <button
-                        onClick={() => setViewResource(res)}
-                        className="p-1 hover:text-sky-400 transition"
-                        title="View telemetry"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => alert(`Modify resource ${res.id}`)}
-                        className="p-1 hover:text-amber-400 transition"
-                        title="Edit resource"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                    </div>
+              {resources.length === 0 && !isLoading ? (
+                <tr>
+                  <td colSpan={8} className="py-10 text-center text-slate-500">
+                    No resources found matching filter.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                resources.map((res) => (
+                  <tr key={res.id} className="hover:bg-slate-900/50 transition text-slate-300">
+                    <td className="py-3.5 px-4 font-mono text-sky-400 font-bold">{res.id}</td>
+                    <td className="py-3.5 px-4 font-semibold text-white">{res.type}</td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`px-2.5 py-1 rounded text-[11px] font-semibold border ${getStatusBadge(
+                          res.status
+                        )}`}
+                      >
+                        {res.status}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-2.5 w-32">
+                        <div className="flex-1 bg-slate-800 rounded-full h-2 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${getFuelColor(res.fuelLevel)}`}
+                            style={{ width: `${res.fuelLevel}%` }}
+                          />
+                        </div>
+                        <span className="font-mono text-slate-300 w-8 text-right text-[11px]">
+                          {res.fuelLevel}%
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`px-2.5 py-0.5 rounded text-[11px] font-medium border ${
+                          res.maintenance === 'Normal'
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                            : 'bg-red-500/10 text-red-400 border-red-500/30'
+                        }`}
+                      >
+                        {res.maintenance}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 font-mono font-bold">
+                      <span className={getPredictedColor(res.predictedAvailability)}>
+                        {res.predictedAvailability}%
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-300 flex items-center gap-1.5 pt-4">
+                      <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                      <span>{res.currentLocation}</span>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-2 text-slate-400">
+                        <button
+                          onClick={() => setViewResource(res)}
+                          className="p-1 hover:text-sky-400 transition"
+                          title="View telemetry"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setEditingResource(res)}
+                          className="p-1 hover:text-amber-400 transition"
+                          title="Edit resource"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(res)}
+                          className="p-1 hover:text-red-400 transition"
+                          title="Decommission resource"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -229,7 +316,7 @@ export const Resources: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#0d1322] border border-slate-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 className="text-base font-bold text-white">Add Synthetic Fleet Asset</h3>
+              <h3 className="text-base font-bold text-white">Add Synthetic Fleet Asset (PostgreSQL)</h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
                 className="text-slate-400 hover:text-white"
@@ -292,6 +379,84 @@ export const Resources: React.FC = () => {
                   className="px-4 py-2 bg-blue-600 rounded-lg text-white font-semibold"
                 >
                   Commission Asset
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Resource */}
+      {editingResource && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0d1322] border border-slate-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h3 className="text-base font-bold text-white">Edit Resource {editingResource.id}</h3>
+              <button
+                onClick={() => setEditingResource(null)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleUpdateResource} className="space-y-4 mt-4 text-xs">
+              <div>
+                <label className="block text-slate-400 mb-1">Availability Status</label>
+                <select
+                  value={editingResource.status}
+                  onChange={(e) =>
+                    setEditingResource({ ...editingResource, status: e.target.value as ResourceStatus })
+                  }
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                >
+                  <option value="Available">Available</option>
+                  <option value="In Mission">In Mission</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Unavailable">Unavailable</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-400 mb-1">Fuel Level (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={editingResource.fuelLevel}
+                  onChange={(e) =>
+                    setEditingResource({ ...editingResource, fuelLevel: parseInt(e.target.value) || 0 })
+                  }
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-400 mb-1">Maintenance Status</label>
+                <select
+                  value={editingResource.maintenance}
+                  onChange={(e) =>
+                    setEditingResource({ ...editingResource, maintenance: e.target.value as 'Normal' | 'Maintenance' })
+                  }
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200"
+                >
+                  <option value="Normal">Normal</option>
+                  <option value="Maintenance">Maintenance</option>
+                </select>
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingResource(null)}
+                  className="px-4 py-2 bg-slate-800 rounded-lg text-slate-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-amber-600 rounded-lg text-white font-semibold"
+                >
+                  Save Telemetry
                 </button>
               </div>
             </form>

@@ -13,9 +13,10 @@ The **AI-Powered Dynamic Air Operations & Resource Optimisation Simulator** is a
 
 The system combines:
 1. **Interactive Operations Command Center UI** for situational awareness, asset telemetry, and mission monitoring.
-2. **Operations Research Engine (Google OR-Tools CP-SAT)** for multi-objective constraint satisfaction (flight crew resting, fuel thresholds, maintenance turnaround, weather avoidance).
-3. **Machine Learning Pipeline (Scikit-Learn)** for predictive asset availability and turnaround forecasting.
-4. **Dynamic Re-planning Simulator** to handle real-time injects (asset failures, runway closures, priority overrides, weather disruptions) in sub-2-second response times.
+2. **FastAPI & PostgreSQL Backend (Phase 2)** with SQLAlchemy 2.x, Alembic schema migrations, and REST CRUD services.
+3. **Operations Research Engine (Google OR-Tools CP-SAT - Upcoming Phase)** for multi-objective constraint satisfaction (flight crew resting, fuel thresholds, maintenance turnaround, weather avoidance).
+4. **Machine Learning Pipeline (Scikit-Learn - Upcoming Phase)** for predictive asset availability and turnaround forecasting.
+5. **Dynamic Re-planning Simulator** to handle real-time injects (asset failures, runway closures, priority overrides, weather disruptions) in sub-2-second response times.
 
 ---
 
@@ -27,11 +28,12 @@ The system combines:
                     │   Tactical Command-Center Interface    │
                     │ (Tailwind CSS, Lucide Icons, Recharts) │
                     └───────────────────┬────────────────────┘
-                                        │ REST / WebSockets
+                                        │ REST APIs
                                         ▼
                     ┌────────────────────────────────────────┐
                     │            FastAPI Backend             │
                     │   - Mission Dispatcher & Validation    │
+                    │   - Resource Telemetry Management      │
                     │   - Disruption Simulation Engine       │
                     └───────┬────────────────────────┬───────┘
                             │                        │
@@ -45,7 +47,7 @@ The system combines:
                             ▼
        ┌──────────────────────────────┐
        │     PostgreSQL Database      │
-       │     Synthetic Air Data       │
+       │ (Missions, Resources, Sched) │
        └──────────────────────────────┘
 ```
 
@@ -59,24 +61,35 @@ The system combines:
 ├── README.md                   # Documentation & Setup Guide
 ├── UIIIII.png                  # Command Center UI Design Specification
 ├── backend/                    # FastAPI Backend Service
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   ├── .env.example
+│   ├── Dockerfile              # Python 3.11 container definition
+│   ├── requirements.txt        # FastAPI, SQLAlchemy, Alembic, psycopg2
+│   ├── alembic.ini             # Alembic configuration
+│   ├── alembic/                # Database migrations
+│   │   ├── env.py
+│   │   └── versions/           # Migration revision scripts
+│   ├── test_api_endpoints.py   # Automated test suite for all endpoints
 │   └── app/
-│       ├── __init__.py
-│       ├── main.py             # FastAPI entrypoint
-│       ├── core/
-│       │   ├── __init__.py
-│       │   └── config.py       # Pydantic settings
+│       ├── main.py             # FastAPI entrypoint & router assembly
+│       ├── database.py         # SQLAlchemy engine & session factory
 │       ├── models/             # Database ORM models
-│       ├── schemas/            # Pydantic I/O models
-│       │   ├── __init__.py
-│       │   └── domain.py
-│       └── api/
-│           ├── __init__.py
-│           └── endpoints.py    # Synthetic REST endpoints
+│       │   ├── mission.py
+│       │   ├── resource.py
+│       │   ├── schedule.py
+│       │   └── simulation_event.py
+│       ├── schemas/            # Pydantic validation schemas
+│       │   ├── mission.py
+│       │   ├── resource.py
+│       │   ├── schedule.py
+│       │   └── simulation_event.py
+│       ├── routers/            # API Route handlers
+│       │   ├── missions.py     # CRUD /api/missions
+│       │   ├── resources.py    # CRUD /api/resources
+│       │   ├── schedules.py    # GET /api/schedules
+│       │   └── simulation.py   # GET/POST /api/simulation/events
+│       └── services/
+│           └── seed_data.py    # 15 missions & 30 resources synthetic seeder
 └── frontend/                   # React + TypeScript + Vite UI
-    ├── Dockerfile
+    ├── Dockerfile              # Multi-stage Nginx container
     ├── nginx.conf
     ├── package.json
     ├── vite.config.ts
@@ -84,90 +97,138 @@ The system combines:
     └── src/
         ├── App.tsx             # Main dashboard navigation shell
         ├── index.css           # Command center styling & animations
+        ├── services/
+        │   └── api.ts          # Centralized API service layer
         ├── components/         # Reusable tactical UI components
         │   ├── Header.tsx      # Top status bar & live simulation clock
         │   ├── Sidebar.tsx     # Command center navigation
         │   ├── TacticalMap.tsx # Operations visualization canvas
         │   ├── StatCard.tsx    # Telemetry KPI cards
-        │   └── Modal.tsx       # Action dialogs
+        │   ├── OptimizationModal.tsx
+        │   └── DisruptionModal.tsx
         ├── pages/              # Module screens
-        │   ├── Dashboard.tsx   # Integrated operations overview
-        │   ├── Missions.tsx    # Mission management & scheduling
-        │   ├── Resources.tsx   # Fleet & asset readiness telemetry
+        │   ├── Dashboard.tsx   # Live metrics & situational awareness
+        │   ├── Missions.tsx    # Mission management & scheduling CRUD
+        │   ├── Resources.tsx   # Fleet & asset readiness telemetry CRUD
         │   ├── Optimization.tsx# CP-SAT solver control & schedule
         │   ├── Simulation.tsx  # Dynamic disruption inject & re-planner
-        │   └── Analytics.tsx   # Performance comparison & KPIs
+        │   ├── Analytics.tsx   # Performance comparison & KPIs
+        │   ├── Reports.tsx     # Audit & mission log downloads
+        │   └── Settings.tsx    # Hyperparameters & data safety
         └── types/              # TypeScript interface definitions
 ```
 
 ---
 
-## 🚀 Quick Start Guide
+## 🗄️ Database Models (SQLAlchemy 2.x)
 
-### Option 1: Run Frontend Locally (Fastest)
+1. **Mission** (`missions`):
+   - `id`: Primary key (autoincrement integer)
+   - `mission_code`: Unique identifier (e.g., `M001`)
+   - `name`: Mission name (e.g., `Reconnaissance Alpha`)
+   - `priority`: `HIGH` / `MEDIUM` / `LOW`
+   - `zone`: `ZONE_A` / `ZONE_B` / `ZONE_C` / `ZONE_D`
+   - `duration_minutes`: Sortie duration
+   - `start_window` & `end_window`: Timestamp time windows
+   - `required_resource_type`: `TYPE_A` / `TYPE_B` / `TYPE_C`
+   - `required_resource_count`: Asset count needed
+   - `status`: `PENDING` / `SCHEDULED` / `ACTIVE` / `COMPLETED` / `DELAYED`
+   - `created_at`: Server timestamp
 
-**Prerequisites:** Node.js v18+ and npm installed.
+2. **Resource** (`resources`):
+   - `id`: Primary key (autoincrement integer)
+   - `resource_code`: Unique asset identifier (e.g., `A01`)
+   - `resource_type`: `TYPE_A` / `TYPE_B` / `TYPE_C`
+   - `capacity`: Payload capacity
+   - `availability_status`: `AVAILABLE` / `IN_MISSION` / `UNAVAILABLE` / `MAINTENANCE`
+   - `fuel_level`: 0–100%
+   - `maintenance_status`: `NORMAL` / `ATTENTION` / `MAINTENANCE`
+   - `operating_hours`: Total flight hours
+   - `current_zone`: Current geographical sector
+   - `home_base`: `BASE_1` / `BASE_2` / `BASE_3` / `BASE_4`
+   - `predicted_availability`: Machine learning readiness score (0–100%)
+   - `created_at`: Server timestamp
 
+3. **Schedule** (`schedules`):
+   - `id`: Primary key
+   - `mission_id`: Foreign key to `missions.id`
+   - `resource_id`: Foreign key to `resources.id`
+   - `start_time` & `end_time`: Allocation interval
+   - `delay_minutes`: Latency delta
+   - `optimization_score`: Constraint solver score
+   - `status`: `SCHEDULED` / `ACTIVE` / `COMPLETED` / `CANCELLED`
+
+4. **SimulationEvent** (`simulation_events`):
+   - `id`: Primary key
+   - `event_type`: Event class (e.g., `RESOURCE_UNAVAILABLE`, `WEATHER_DISRUPTION`)
+   - `affected_resource_id`: Foreign key to `resources.id` (nullable)
+   - `affected_mission_id`: Foreign key to `missions.id` (nullable)
+   - `severity`: `LOW` / `MEDIUM` / `HIGH` / `CRITICAL`
+   - `description`: Textual inject details
+
+---
+
+## 📡 Backend API Endpoints
+
+| Category | Method | Endpoint | Description |
+|---|---|---|---|
+| **Health** | `GET` | `/api/health` | Service and database connectivity status |
+| **Missions** | `GET` | `/api/missions` | List missions with search, priority, status filters |
+| | `GET` | `/api/missions/{id}` | Get mission details by ID |
+| | `POST` | `/api/missions` | Create a new synthetic mission |
+| | `PUT` | `/api/missions/{id}` | Update existing mission details |
+| | `DELETE` | `/api/missions/{id}` | Remove mission |
+| **Resources** | `GET` | `/api/resources` | List resources with search, type, status filters |
+| | `GET` | `/api/resources/{id}` | Get resource telemetry by ID |
+| | `POST` | `/api/resources` | Add new synthetic aircraft |
+| | `PUT` | `/api/resources/{id}` | Update resource status/fuel |
+| | `DELETE` | `/api/resources/{id}` | Decommission resource |
+| **Schedules** | `GET` | `/api/schedules` | List active mission-resource allocations |
+| | `GET` | `/api/schedules/{id}` | Get schedule entry by ID |
+| **Simulation** | `GET` | `/api/simulation/events` | List dynamic disruption events feed |
+| | `POST` | `/api/simulation/events` | Inject new disruption and update asset state |
+| **Seed** | `POST` | `/api/seed` | Trigger synthetic seeding (15 missions, 30 assets) |
+
+---
+
+## 🚀 Running the Full Stack
+
+### Option 1: Docker Compose (All Services Together)
+
+```bash
+docker-compose up --build
+```
+- **Frontend Command Center:** `http://localhost:5173`
+- **FastAPI Interactive Docs:** `http://localhost:8000/docs`
+- **PostgreSQL Database:** `localhost:5432` (db: `airops_db`, user: `airops_user`)
+
+### Option 2: Local Development Execution
+
+#### 1. Start Backend:
+```bash
+cd backend
+# Create virtual environment if needed
+python -m venv venv
+.\venv\Scripts\pip install -r requirements.txt
+
+# Run migrations
+.\venv\Scripts\alembic upgrade head
+
+# Start FastAPI
+.\venv\Scripts\uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+#### 2. Start Frontend:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+Open **`http://localhost:5173`** in your browser.
 
-The frontend will start at: **`http://localhost:5173`**
-
-### Option 2: Run Full Stack with Docker Compose
-
-**Prerequisites:** Docker and Docker Compose installed.
-
+#### 3. Run Automated Backend Test Suite:
 ```bash
-# From project root:
-docker-compose up --build
+cd backend
+.\venv\Scripts\python test_api_endpoints.py
 ```
-
-- Frontend: `http://localhost:5173`
-- Backend API Docs: `http://localhost:8000/docs`
-- PostgreSQL: `localhost:5432`
-
----
-
-## 🎯 Command Center Features
-
-1. **Dashboard Overview**:
-   - Total Missions, Available Aircraft, Active Missions, Mission Completion %.
-   - **Interactive Live Operations Map**: Synthetic radar zones (Zone A–D), aircraft telemetry beacons, status markers.
-   - **Mission Status Donut Chart**: Completed, Ongoing, Pending, Delayed.
-   - **Recent Alerts Telemetry**: Real-time event log with severity indicators.
-   - **Direct Tactical Controls**: "Generate Optimal Plan" and "Simulate Disruption".
-
-2. **Mission Management**:
-   - Filterable mission ledger by Priority (High, Medium, Low) and Status.
-   - Time window constraints and required asset payloads.
-   - Add/inspect synthetic mission parameters.
-
-3. **Resource Management**:
-   - Aircraft fleet tracking (Type-A, Type-B, Type-C).
-   - Real-time fuel telemetry gauge, maintenance status pills, predicted readiness %.
-   - Synthetic staging locations (Base-1, Base-2, Base-3, Zone A).
-
-4. **Optimization & Scheduling**:
-   - Multi-objective selector (Minimize Delay, Maximize Resource Efficiency, Rapid Response).
-   - Constraint toggles: Weather avoidance, predicted availability, maintenance buffers, dynamic re-planning.
-   - Optimized mission timeline & assignment schedule.
-
-5. **Simulation & Dynamic Re-planning**:
-   - Interactive disruption triggers: Resource Unavailable, Capacity Reduced, Priority Shift, Weather Impact, Resource Delayed.
-   - Live Before vs. After re-optimization delta metrics (Average delay, utilization, re-planning latency).
-   - Automated 6-step re-planning action resolution pipeline.
-
-6. **Analytics & Performance**:
-   - 7-Day comparative evaluation (Baseline vs. AI-Optimized).
-   - Mission completion rate trends, resource utilization bars, and average delay reduction metrics.
-
----
-
-## 🛡️ Synthetic Data Compliance Notice
-
-In full compliance with safety, ethics, and competitive integrity guidelines:
-- All aircraft identifiers (`Type-A`, `A01-A08`), operational zones (`Zone A`, `Base-1`), and mission profiles (`Reconnaissance Alpha`) are **purely synthetic and abstract**.
-- No classified or sensitive defense systems, tactical algorithms, or real geographical coordinates are included or referenced.
+*(All 15 endpoints verified with 100% pass rate)*

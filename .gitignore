@@ -53,3 +53,11 @@ ENV/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local DB & Documents
+*.db
+*.sqlite
+*.sqlite3
+*.pdf
+*.docx
+*.tex
