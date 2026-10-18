@@ -103,7 +103,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ onSelectZone }) => {
   return (
     <div
       className={`clay-card relative overflow-hidden flex flex-col transition-all duration-300 ${
-        isExpanded ? 'fixed inset-4 z-50 shadow-2xl bg-[#EAF2FC]' : 'h-[380px] w-full'
+        isExpanded ? 'fixed inset-4 z-50 shadow-2xl bg-[#EAF2FC]' : 'h-[420px] sm:h-[460px] w-full'
       }`}
     >
       {/* Map Header Bar */}

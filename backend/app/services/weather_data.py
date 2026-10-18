@@ -343,6 +343,13 @@ def get_weather_overview(db: Session) -> WeatherOverviewResponse:
         cancelled_missions=cancelled_count
     )
 
+    from app.services.live_weather_service import live_weather_cache
+    conditions_list = (
+        live_weather_cache.cached_payload.get("condition_cards")
+        if (live_weather_cache and live_weather_cache.cached_payload and live_weather_cache.cached_payload.get("condition_cards"))
+        else CONDITION_CARDS
+    )
+
     return WeatherOverviewResponse(
         high_alert_zones=high_count,
         medium_alert_zones=med_count,
@@ -353,7 +360,7 @@ def get_weather_overview(db: Session) -> WeatherOverviewResponse:
         banner_message=banner_msg,
         banner_zone=banner_zone,
         zones=zones,
-        conditions=CONDITION_CARDS,
+        conditions=conditions_list,
         recent_alerts=recent_alerts,
         impact=impact,
         active_scenario="thunderstorm_active"

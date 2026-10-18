@@ -30,7 +30,7 @@ export const Reports: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6 bg-[#EAF2FC] min-h-screen text-[#14264A]">
+    <div className="space-y-5 lg:space-y-6 text-[#14264A] min-w-0">
       <div className="pb-2 border-b border-[#C2D5ED]/60">
         <div className="flex items-center gap-2.5">
           <h2 className="text-2xl font-extrabold text-[#14264A] tracking-tight">Mission & Audit Reports</h2>

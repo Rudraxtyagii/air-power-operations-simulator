@@ -9,6 +9,7 @@ from app.schemas.weather import (
     WeatherAlertResponse,
     WeatherConditionCard,
     WeatherImpactSummary,
+    LiveIndiaWeatherResponse,
 )
 from app.services.weather_data import (
     get_weather_overview,
@@ -17,6 +18,7 @@ from app.services.weather_data import (
     INITIAL_ZONES,
     seed_weather_data_if_empty,
 )
+from app.services.live_weather_service import fetch_live_india_weather
 
 router = APIRouter(prefix="/weather", tags=["Weather"])
 
@@ -117,3 +119,21 @@ def get_impact(db: Session = Depends(get_db)):
     """Get mission impact summary based on current zone risk levels"""
     overview = get_weather_overview(db)
     return overview.impact
+
+
+@router.get("/live-india", response_model=LiveIndiaWeatherResponse)
+async def get_live_india_weather(force: bool = False):
+    """
+    Fetch actual live meteorological readings for all 36 Indian States and UTs
+    from the Open-Meteo Forecast API with server-side caching (10 min TTL) and documented risk scoring.
+    """
+    return await fetch_live_india_weather(force_refresh=force)
+
+
+@router.post("/live-india/refresh", response_model=LiveIndiaWeatherResponse)
+async def refresh_live_india_weather():
+    """
+    Force an immediate live update from the Open-Meteo Forecast API.
+    """
+    return await fetch_live_india_weather(force_refresh=True)
+

@@ -144,7 +144,17 @@ def run_tests():
     # Verify resource status updated to UNAVAILABLE
     res = client.get(f"/api/resources/{first_r_id}")
     assert res.json()["availability_status"] == "UNAVAILABLE"
-    print("[PASS] Resource status dynamically updated by simulation event: OK")
+    # Weather endpoints
+    res = client.get("/api/weather/overview")
+    assert res.status_code == 200
+    print(f"[PASS] GET /api/weather/overview: OK ({len(res.json()['zones'])} zones)")
+
+    res = client.get("/api/weather/live-india")
+    assert res.status_code == 200
+    live_data = res.json()
+    assert live_data["status"] in ["LIVE", "STALE", "OFFLINE"]
+    assert len(live_data["states"]) == 36
+    print(f"[PASS] GET /api/weather/live-india: OK ({len(live_data['states'])} Indian states/UTs monitored)")
 
     print("\n==========================================")
     print("ALL API ENDPOINTS TESTED AND VERIFIED: 100% SUCCESS")

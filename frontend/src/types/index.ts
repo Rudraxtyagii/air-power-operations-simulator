@@ -107,6 +107,60 @@ export interface WeatherOverview {
   active_scenario: string;
 }
 
+export interface StateWeatherItem {
+  name: string;
+  code: string;
+  zone: string;
+  lat: number;
+  lon: number;
+  temperature_2m: number | null;
+  apparent_temperature: number | null;
+  relative_humidity_2m: number | null;
+  precipitation: number | null;
+  rain: number | null;
+  showers: number | null;
+  snowfall: number | null;
+  weather_code: number | null;
+  weather_condition: string;
+  icon_type: string;
+  cloud_cover: number | null;
+  wind_speed_10m: number | null;
+  wind_direction_10m: number | null;
+  wind_gusts_10m: number | null;
+  risk_level: 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN';
+  risk_color: string;
+  risk_reasons: string[];
+  advisory: string;
+  observation_time: string | null;
+}
+
+export interface LiveWeatherSummary {
+  high_risk_count: number;
+  medium_risk_count: number;
+  low_risk_count: number;
+  average_temperature_c: number | null;
+  max_wind_speed_kmh: number | null;
+  max_wind_state: string | null;
+  rain_states_count: number;
+  cloudy_states_count: number;
+  overall_operational_threat: string;
+  operational_summary: string;
+}
+
+export interface LiveIndiaWeatherResponse {
+  status: 'LIVE' | 'STALE' | 'OFFLINE';
+  is_stale: boolean;
+  data_source: string;
+  attribution: string;
+  last_updated_utc: string | null;
+  last_fetched_epoch: number;
+  total_states_monitored: number;
+  summary: LiveWeatherSummary;
+  states: StateWeatherItem[];
+  condition_cards?: WeatherConditionCard[];
+  error_notice?: string | null;
+}
+
 export interface OptimizationScheduleItem {
   mission_id: number;
   mission_code: string;

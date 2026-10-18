@@ -1,7 +1,7 @@
 import { INITIAL_MISSIONS, INITIAL_RESOURCES, SCHEDULED_MISSIONS, INITIAL_ALERTS } from '../data/mockData';
 import type { Mission, Resource, ScheduledMission, AlertItem, Priority, MissionStatus, ResourceStatus } from '../types';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export interface ApiMission {
   id: number;
@@ -425,6 +425,25 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
     });
     if (!res.ok) throw new Error(`Failed to reset weather: ${res.statusText}`);
+    return res.json();
+  },
+
+  // Live India Weather API (Open-Meteo & Official GoI GeoJSON boundaries)
+  async getLiveIndiaWeather(force = false): Promise<import('../types').LiveIndiaWeatherResponse> {
+    const url = force
+      ? `${API_BASE_URL}/weather/live-india?force=true`
+      : `${API_BASE_URL}/weather/live-india`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch live India weather: ${res.statusText}`);
+    return res.json();
+  },
+
+  async refreshLiveIndiaWeather(): Promise<import('../types').LiveIndiaWeatherResponse> {
+    const res = await fetch(`${API_BASE_URL}/weather/live-india/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Failed to refresh live India weather: ${res.statusText}`);
     return res.json();
   },
 

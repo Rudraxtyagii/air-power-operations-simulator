@@ -150,7 +150,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigateToTab }) => {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-[#EAF2FC] min-h-screen text-[#14264A]">
+    <div className="space-y-5 lg:space-y-6 text-[#14264A] min-w-0">
       {/* Top Banner Alert if injected */}
       {bannerAlert && (
         <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FDE8E8] border border-[#F04452]/40 text-[#991B1B] text-xs font-semibold shadow-xs animate-fade-in">
