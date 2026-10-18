@@ -203,3 +203,104 @@ export interface OptimizationResult {
     };
   };
 }
+
+// Modular Simulation Engine Types
+export interface SimulationEventConfig {
+  virtual_time_minutes: number;
+  event_type: string;
+  target_code: string;
+  severity: string;
+  description: string;
+  parameters?: Record<string, any>;
+}
+
+export interface ScenarioSnapshot {
+  id: number;
+  scenario_id: number;
+  snapshot_version: string;
+  source_timestamp: string;
+  data_provenance: string;
+  resources_count: number;
+  missions_count: number;
+  weather_zones_count: number;
+  data_freshness_status: string;
+  created_at: string;
+}
+
+export interface SimulationStateStep {
+  virtual_time_minutes: number;
+  virtual_time_label: string;
+  available_resources_count: number;
+  in_mission_resources_count: number;
+  maintenance_resources_count: number;
+  unavailable_resources_count: number;
+  active_missions_count: number;
+  completed_missions_count: number;
+  delayed_missions_count: number;
+  fleet_availability_pct: number;
+  average_delay_minutes: number;
+  weather_risk_index: number;
+}
+
+export interface SimulationRunEvent {
+  id: number;
+  run_id: number;
+  virtual_time_minutes: number;
+  event_type: string;
+  severity: string;
+  target_code: string;
+  description: string;
+  applied_effect: string;
+  created_at: string;
+}
+
+export interface SimulationRun {
+  id: number;
+  run_code: string;
+  scenario_id: number;
+  status: 'PENDING' | 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'RESET' | 'FAILED';
+  current_virtual_time_minutes: number;
+  total_virtual_duration_minutes: number;
+  time_step_minutes: number;
+  execution_duration_ms: number;
+  events_processed_count: number;
+  validation_errors_count: number;
+  metrics_summary: string;
+  error_message?: string;
+  started_at?: string;
+  completed_at?: string;
+  created_at: string;
+}
+
+export interface SimulationScenario {
+  id: number;
+  scenario_code: string;
+  name: string;
+  description: string;
+  duration_minutes: number;
+  time_step_minutes: number;
+  random_seed: number;
+  engine_version: string;
+  status: string;
+  events_config: string;
+  created_at: string;
+  updated_at: string;
+  snapshot?: ScenarioSnapshot;
+  latest_run?: SimulationRun;
+}
+
+export interface SimulationResults {
+  scenario_id: number;
+  run_id: number;
+  run_code: string;
+  status: string;
+  execution_duration_ms: number;
+  current_virtual_time_minutes: number;
+  total_virtual_duration_minutes: number;
+  metrics: Record<string, any>;
+  baseline_vs_scenario: Record<string, any>;
+  time_series: SimulationStateStep[];
+  event_history: SimulationRunEvent[];
+  simulated_resources: Array<{ code: string; status: string }>;
+  simulated_missions: Array<{ code: string; status: string }>;
+}

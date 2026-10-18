@@ -471,4 +471,83 @@ export const api = {
     if (!res.ok) throw new Error(`Failed to fetch latest optimization: ${res.statusText}`);
     return res.json();
   },
+
+  // Modular Simulation Engine API
+  async getSimulations(): Promise<import('../types').SimulationScenario[]> {
+    const res = await fetch(`${API_BASE_URL}/simulations`);
+    if (!res.ok) throw new Error(`Failed to fetch simulation scenarios: ${res.statusText}`);
+    return res.json();
+  },
+
+  async getSimulation(id: number): Promise<import('../types').SimulationScenario> {
+    const res = await fetch(`${API_BASE_URL}/simulations/${id}`);
+    if (!res.ok) throw new Error(`Failed to fetch scenario ${id}: ${res.statusText}`);
+    return res.json();
+  },
+
+  async createSimulation(payload: {
+    name: string;
+    description: string;
+    duration_minutes: number;
+    time_step_minutes: number;
+    random_seed: number;
+    events_config: import('../types').SimulationEventConfig[];
+  }): Promise<import('../types').SimulationScenario> {
+    const res = await fetch(`${API_BASE_URL}/simulations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Failed to create simulation scenario: ${res.statusText}`);
+    return res.json();
+  },
+
+  async runSimulation(id: number): Promise<import('../types').SimulationRun> {
+    const res = await fetch(`${API_BASE_URL}/simulations/${id}/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Failed to run simulation ${id}: ${res.statusText}`);
+    return res.json();
+  },
+
+  async pauseSimulation(id: number): Promise<import('../types').SimulationRun> {
+    const res = await fetch(`${API_BASE_URL}/simulations/${id}/pause`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Failed to pause simulation ${id}: ${res.statusText}`);
+    return res.json();
+  },
+
+  async resumeSimulation(id: number): Promise<import('../types').SimulationRun> {
+    const res = await fetch(`${API_BASE_URL}/simulations/${id}/resume`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Failed to resume simulation ${id}: ${res.statusText}`);
+    return res.json();
+  },
+
+  async resetSimulation(id: number): Promise<import('../types').SimulationRun> {
+    const res = await fetch(`${API_BASE_URL}/simulations/${id}/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Failed to reset simulation ${id}: ${res.statusText}`);
+    return res.json();
+  },
+
+  async getSimulationResults(id: number): Promise<import('../types').SimulationResults> {
+    const res = await fetch(`${API_BASE_URL}/simulations/${id}/results`);
+    if (!res.ok) throw new Error(`Failed to fetch results for simulation ${id}: ${res.statusText}`);
+    return res.json();
+  },
+
+  async getSimulationEventsForScenario(id: number): Promise<import('../types').SimulationRunEvent[]> {
+    const res = await fetch(`${API_BASE_URL}/simulations/${id}/events`);
+    if (!res.ok) throw new Error(`Failed to fetch events for simulation ${id}: ${res.statusText}`);
+    return res.json();
+  },
 };
+

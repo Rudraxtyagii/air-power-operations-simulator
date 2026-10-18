@@ -9,10 +9,12 @@ from app.routers.missions import router as missions_router
 from app.routers.resources import router as resources_router
 from app.routers.schedules import router as schedules_router
 from app.routers.simulation import router as simulation_router
+from app.routers.simulations import router as simulations_router
 from app.routers.weather import router as weather_router
 from app.routers.optimization import router as optimization_router
 from app.services.seed_data import seed_database
 from app.services.weather_data import seed_weather_data_if_empty
+from app.services.simulation_seed import seed_simulation_scenarios_if_empty
 
 
 @asynccontextmanager
@@ -23,6 +25,7 @@ async def lifespan(app: FastAPI):
         with Session(engine) as session:
             seed_database(session, force=False)
             seed_weather_data_if_empty(session)
+            seed_simulation_scenarios_if_empty(session)
     except Exception as e:
         print(f"[Warning] Auto table creation/seeding: {e}")
     yield
@@ -79,6 +82,7 @@ app.include_router(missions_router, prefix="/api")
 app.include_router(resources_router, prefix="/api")
 app.include_router(schedules_router, prefix="/api")
 app.include_router(simulation_router, prefix="/api")
+app.include_router(simulations_router, prefix="/api")
 app.include_router(weather_router, prefix="/api")
 app.include_router(optimization_router, prefix="/api")
 
