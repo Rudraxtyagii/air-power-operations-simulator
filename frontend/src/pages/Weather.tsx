@@ -9,6 +9,8 @@ import {
   AlertTriangle,
   MapPin,
   RefreshCw,
+  ZoomIn,
+  ZoomOut,
   Crosshair,
   Eye,
   CheckCircle2,
@@ -21,7 +23,6 @@ import {
 import { api } from '../services/api';
 import type { WeatherOverview, WeatherZone, WeatherAlert } from '../types';
 import { soundSynthesizer } from '../utils/audioAlert';
-import { WeatherRiskMap } from '../components/WeatherRiskMap';
 
 interface WeatherProps {
   onNavigateToOptimization?: () => void;
@@ -35,6 +36,13 @@ export const Weather: React.FC<WeatherProps> = ({ onNavigateToOptimization }) =>
   const [selectedZone, setSelectedZone] = useState<WeatherZone | null>(null);
   const [selectedAlert, setSelectedAlert] = useState<WeatherAlert | null>(null);
   const [showScenarioModal, setShowScenarioModal] = useState<boolean>(false);
+
+  // Map layer toggles
+  const [layerRadar, setLayerRadar] = useState(true);
+  const [layerBoundaries, setLayerBoundaries] = useState(true);
+  const [layerMissions, setLayerMissions] = useState(true);
+  const [layerAirbases, setLayerAirbases] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const fetchWeather = async () => {
     try {
@@ -329,12 +337,302 @@ export const Weather: React.FC<WeatherProps> = ({ onNavigateToOptimization }) =>
       {/* MIDDLE SECTION: Weather Risk Map + Current Weather Conditions */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* LEFT: Weather Risk Map (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col justify-start">
-          <WeatherRiskMap
-            overview={overview}
-            onSelectZone={(zone) => setSelectedZone(zone)}
-            onRunOptimization={handleRunReOptimization}
-          />
+        <div className="lg:col-span-7 clay-card p-5 relative flex flex-col">
+          {/* Map Header */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-base text-[#14264A]">Weather Risk Map</h3>
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-[#4285F4] border border-blue-200">
+                LIVE TACTICAL RADAR
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setZoomLevel((z) => Math.min(1.4, z + 0.1))}
+                className="clay-btn p-1.5 cursor-pointer"
+                title="Zoom In"
+              >
+                <ZoomIn className="w-3.5 h-3.5 text-[#14264A]" />
+              </button>
+              <button
+                onClick={() => setZoomLevel((z) => Math.max(0.8, z - 0.1))}
+                className="clay-btn p-1.5 cursor-pointer"
+                title="Zoom Out"
+              >
+                <ZoomOut className="w-3.5 h-3.5 text-[#14264A]" />
+              </button>
+              <button
+                onClick={() => setZoomLevel(1)}
+                className="clay-btn p-1.5 cursor-pointer"
+                title="Reset View"
+              >
+                <Crosshair className="w-3.5 h-3.5 text-[#14264A]" />
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Map Visualizer */}
+          <div className="relative w-full h-[400px] rounded-2xl overflow-hidden bg-gradient-to-br from-[#d4e4f7] via-[#c6dbf2] to-[#b7d2ee] border border-white/80 shadow-inner">
+            {/* Topographic Contour Background Lines (Abstract Synthetic Terrain) */}
+            <svg
+              className="absolute inset-0 w-full h-full opacity-40 pointer-events-none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <pattern id="topoGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#90b4dc" strokeWidth="0.5" strokeDasharray="2,2" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#topoGrid)" />
+              {/* Mountain ridges / elevation curves */}
+              <path
+                d="M 50 80 Q 180 30 320 90 T 580 120 T 800 60"
+                fill="none"
+                stroke="#7ca5d6"
+                strokeWidth="1.5"
+                opacity="0.6"
+              />
+              <path
+                d="M 20 220 Q 220 180 400 240 T 700 200 T 900 260"
+                fill="none"
+                stroke="#7ca5d6"
+                strokeWidth="1.5"
+                opacity="0.6"
+              />
+              <path
+                d="M 40 340 Q 260 280 480 360 T 750 320"
+                fill="none"
+                stroke="#7ca5d6"
+                strokeWidth="1.5"
+                opacity="0.6"
+              />
+            </svg>
+
+            {/* Radar Sweep Effect */}
+            {layerRadar && (
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div
+                  className="w-[800px] h-[800px] absolute -top-[200px] -left-[100px] rounded-full animate-radar-sweep opacity-15"
+                  style={{
+                    background:
+                      'conic-gradient(from 0deg, rgba(66, 133, 244, 0.4) 0deg, rgba(66, 133, 244, 0) 60deg, transparent 360deg)',
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Tactical Zone Polygons Overlay matching the reference mockup */}
+            <div
+              className="absolute inset-0 p-4 transition-transform duration-300"
+              style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
+            >
+              {/* ZONE A (Top Left - Green / Low Risk) */}
+              <div
+                onClick={() =>
+                  setSelectedZone(overview?.zones.find((z) => z.zone_code === 'ZONE_A') || null)
+                }
+                className="absolute top-6 left-12 w-44 h-32 rounded-[36px] bg-[#DEF7EC]/80 border-2 border-[#25C98A] shadow-md flex flex-col items-center justify-center p-2 cursor-pointer hover:scale-105 transition hover:z-20 backdrop-blur-[2px]"
+              >
+                <span className="text-xs font-extrabold text-[#065F46] tracking-wider">
+                  ZONE A
+                </span>
+                <span className="text-[11px] font-bold text-[#059669]">Low Risk</span>
+                <div className="mt-1 flex items-center gap-1 text-[10px] text-[#065F46]">
+                  <Sun className="w-3 h-3 text-amber-500" />
+                  <span>28°C • 12km/h</span>
+                </div>
+              </div>
+
+              {/* ZONE B (Center North - Red / High Risk - Pulsing Thunderstorm) */}
+              <div
+                onClick={() =>
+                  setSelectedZone(overview?.zones.find((z) => z.zone_code === 'ZONE_B') || null)
+                }
+                className="absolute top-16 left-48 w-52 h-36 rounded-[40px] bg-[#FDE8E8]/90 border-2 border-[#F04452] shadow-xl flex flex-col items-center justify-center p-2 cursor-pointer hover:scale-105 transition z-10 animate-weather-pulse backdrop-blur-sm"
+              >
+                <div className="w-7 h-7 rounded-full bg-[#F04452] text-white flex items-center justify-center shadow-md mb-0.5">
+                  <CloudLightning className="w-4 h-4 fill-current" />
+                </div>
+                <span className="text-xs font-black text-[#991B1B] tracking-wider">
+                  ZONE B
+                </span>
+                <span className="text-[11px] font-extrabold text-[#DC2626]">High Risk</span>
+                <span className="text-[10px] font-bold text-[#B91C1C]">⛈️ Thunderstorm</span>
+              </div>
+
+              {/* ZONE C (Center - Amber / Medium Risk) */}
+              <div
+                onClick={() =>
+                  setSelectedZone(overview?.zones.find((z) => z.zone_code === 'ZONE_C') || null)
+                }
+                className="absolute top-44 left-56 w-44 h-28 rounded-[32px] bg-[#FEF3C7]/85 border-2 border-[#F4B740] shadow-md flex flex-col items-center justify-center p-2 cursor-pointer hover:scale-105 transition hover:z-20 backdrop-blur-[2px]"
+              >
+                <span className="text-xs font-extrabold text-[#92400E] tracking-wider">
+                  ZONE C
+                </span>
+                <span className="text-[11px] font-bold text-[#D97706]">Medium Risk</span>
+                <span className="text-[10px] text-[#78350F]">🌧️ Heavy Rain</span>
+              </div>
+
+              {/* ZONE D (Bottom Left - Green / Low Risk) */}
+              <div
+                onClick={() =>
+                  setSelectedZone(overview?.zones.find((z) => z.zone_code === 'ZONE_D') || null)
+                }
+                className="absolute top-48 left-16 w-40 h-28 rounded-[36px] bg-[#DEF7EC]/80 border-2 border-[#25C98A] shadow-md flex flex-col items-center justify-center p-2 cursor-pointer hover:scale-105 transition hover:z-20 backdrop-blur-[2px]"
+              >
+                <span className="text-xs font-extrabold text-[#065F46] tracking-wider">
+                  ZONE D
+                </span>
+                <span className="text-[11px] font-bold text-[#059669]">Low Risk</span>
+                <span className="text-[10px] text-[#065F46]">☀️ 30°C</span>
+              </div>
+
+              {/* ZONE E (Top Right - Amber / Medium Risk) */}
+              <div
+                onClick={() =>
+                  setSelectedZone(overview?.zones.find((z) => z.zone_code === 'ZONE_E') || null)
+                }
+                className="absolute top-12 right-28 w-44 h-32 rounded-[36px] bg-[#FEF3C7]/85 border-2 border-[#F4B740] shadow-md flex flex-col items-center justify-center p-2 cursor-pointer hover:scale-105 transition hover:z-20 backdrop-blur-[2px]"
+              >
+                <span className="text-xs font-extrabold text-[#92400E] tracking-wider">
+                  ZONE E
+                </span>
+                <span className="text-[11px] font-bold text-[#D97706]">Medium Risk</span>
+                <span className="text-[10px] text-[#78350F]">🌫️ Dense Fog</span>
+              </div>
+
+              {/* ZONE F (Bottom Center/South - Red / High Risk) */}
+              <div
+                onClick={() =>
+                  setSelectedZone(overview?.zones.find((z) => z.zone_code === 'ZONE_F') || null)
+                }
+                className="absolute bottom-6 left-60 w-52 h-32 rounded-[38px] bg-[#FDE8E8]/90 border-2 border-[#F04452] shadow-xl flex flex-col items-center justify-center p-2 cursor-pointer hover:scale-105 transition z-10 animate-weather-pulse backdrop-blur-sm"
+              >
+                <div className="w-7 h-7 rounded-full bg-[#E06830] text-white flex items-center justify-center shadow-md mb-0.5">
+                  <Flame className="w-4 h-4 fill-current" />
+                </div>
+                <span className="text-xs font-black text-[#991B1B] tracking-wider">
+                  ZONE F
+                </span>
+                <span className="text-[11px] font-extrabold text-[#DC2626]">High Risk</span>
+                <span className="text-[10px] font-bold text-[#B91C1C]">🌪️ Sandstorm</span>
+              </div>
+
+              {/* ZONE G (East - Green / Low Risk) */}
+              <div
+                onClick={() =>
+                  setSelectedZone(overview?.zones.find((z) => z.zone_code === 'ZONE_G') || null)
+                }
+                className="absolute top-44 right-20 w-40 h-28 rounded-[34px] bg-[#DEF7EC]/80 border-2 border-[#25C98A] shadow-md flex flex-col items-center justify-center p-2 cursor-pointer hover:scale-105 transition hover:z-20 backdrop-blur-[2px]"
+              >
+                <span className="text-xs font-extrabold text-[#065F46] tracking-wider">
+                  ZONE G
+                </span>
+                <span className="text-[11px] font-bold text-[#059669]">Low Risk</span>
+                <span className="text-[10px] text-[#065F46]">☀️ Clear</span>
+              </div>
+
+              {/* Aircraft Waypoint & Flight Path Lines */}
+              {layerMissions && (
+                <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                  {/* Flight Track 1: Base to Zone A */}
+                  <line
+                    x1="60"
+                    y1="60"
+                    x2="150"
+                    y2="120"
+                    stroke="#4285F4"
+                    strokeWidth="2"
+                    strokeDasharray="4,4"
+                  />
+                  {/* Flight Track 2: Diverted path avoiding Zone B */}
+                  <path
+                    d="M 120 180 Q 220 280 380 230"
+                    fill="none"
+                    stroke="#F04452"
+                    strokeWidth="2"
+                    strokeDasharray="5,3"
+                  />
+                  {/* Flight Track 3: Clear path to Zone G */}
+                  <line
+                    x1="360"
+                    y1="220"
+                    x2="520"
+                    y2="240"
+                    stroke="#25C98A"
+                    strokeWidth="2"
+                  />
+                </svg>
+              )}
+            </div>
+
+            {/* Layer Control Panel (Top Right Overlay) */}
+            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-lg border border-white/80 space-y-1.5 text-xs text-[#14264A] font-medium z-30">
+              <label className="flex items-center gap-2 cursor-pointer hover:text-[#4285F4]">
+                <input
+                  type="checkbox"
+                  checked={layerRadar}
+                  onChange={(e) => setLayerRadar(e.target.checked)}
+                  className="rounded text-[#4285F4] focus:ring-0"
+                />
+                Weather Radar
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer hover:text-[#4285F4]">
+                <input
+                  type="checkbox"
+                  checked={layerBoundaries}
+                  onChange={(e) => setLayerBoundaries(e.target.checked)}
+                  className="rounded text-[#4285F4] focus:ring-0"
+                />
+                Zone Boundaries
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer hover:text-[#4285F4]">
+                <input
+                  type="checkbox"
+                  checked={layerMissions}
+                  onChange={(e) => setLayerMissions(e.target.checked)}
+                  className="rounded text-[#4285F4] focus:ring-0"
+                />
+                Active Missions
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer hover:text-[#4285F4]">
+                <input
+                  type="checkbox"
+                  checked={layerAirbases}
+                  onChange={(e) => setLayerAirbases(e.target.checked)}
+                  className="rounded text-[#4285F4] focus:ring-0"
+                />
+                Airbases
+              </label>
+            </div>
+
+            {/* Bottom Left Legend Overlay */}
+            <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-white/80 flex items-center gap-3 text-[11px] font-semibold text-[#14264A] z-30">
+              <span className="text-xs font-bold text-[#607391]">Weather Risk Level:</span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#F04452]" />
+                <span>High</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#F4B740]" />
+                <span>Medium</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#25C98A]" />
+                <span>Low</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#A0BCD8]" />
+                <span>No Alert</span>
+              </div>
+            </div>
+
+            {/* Bottom Right Scale */}
+            <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-xl shadow border border-white/80 text-[10px] font-mono font-bold text-[#607391] z-30">
+              100 km
+            </div>
+          </div>
         </div>
 
         {/* RIGHT: Current Weather Conditions (5 cols - 6 Cards Grid) */}
